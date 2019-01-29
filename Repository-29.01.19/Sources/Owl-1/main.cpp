@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 #include <sys/types.h>
 //#include <unistd.h>
@@ -45,6 +46,63 @@
 using namespace std;
 using namespace cv;
 
+/* Test script for driving neck in a sinusoidal motion (peak at centre) */
+int sinusoidal_neck()
+{
+    //divide by 974, in order to get peak of sin to occur at "NeckC"=1530
+
+
+    float tmp = 0.0;    // holds sin-processed value.
+
+    // start at center position. Go through one sinusoidal rotation: going from NeckC, NeckR, NeckL,NeckC.
+
+    int neck = NeckC;   // start at center position.
+
+    int state = 1;      // defines direction of travel (sinusoid defines step-size).
+
+
+    for(int i = 1; i < 2*NeckRange; i++)
+    {
+        switch(state)
+        {
+            // (1) rotate from NeckC to NeckR.
+            case 1:
+
+                // if i >= NeckC-NeckR, start turning left.
+                if(430)
+                {
+
+                }
+
+                break;
+
+            // (2) rotate from NeckR to NeckL
+            case 2:
+
+            if(1280)
+            {
+
+            }
+                break;
+
+            // (3) rotate from NeckL to NeckC.
+            case 3:
+
+            if(1530)
+            {
+
+            }
+                break;
+        }
+
+    }
+
+    //get current neck value
+    neck = neck/974;
+
+
+
+}
 
 
 int main(int argc, char *argv[])
