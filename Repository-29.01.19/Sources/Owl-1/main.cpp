@@ -29,8 +29,22 @@
 
 #include "template_code.h"
 
+#include <math.h>
+#include <time.h>
+
 using namespace std;
 using namespace cv;
+
+
+/* Moves all servos to the position corresponding to the latest PWM mark-period value */
+void update_servo_position()
+{
+    CMDstream.str("");
+    CMDstream.clear();
+    CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+    CMD = CMDstream.str();
+    string RxPacket= OwlSendPacket (u_sock, CMD.c_str());
+}
 
 /* Defines the step that should be taken as a sinusoidal function of the current neck position */
 int get_sin_step(int neck_val)
@@ -42,21 +56,17 @@ int get_sin_step(int neck_val)
 }
 
 /* Test script for driving neck in a sinusoidal motion (peak at centre) */
-void sinusoidal_neck()
+int sinusoidal_neck()
 {
-    //divide by 974, in order to get peak of sin to occur at "NeckC"=1530
+    /* (divide by 974, in order to get peak of sin to occur at "NeckC"=1530 i.e. 1530/974 = pi/2.) */
+    /* start at center position. Go through one sinusoidal rotation: going from NeckC, NeckR, NeckL,NeckC. */
 
+    Neck = NeckC;   // start at center position.
+    update_servo_position();
 
-    float tmp = 0.0;    // holds sin-processed value.
+    int state = 1;      // defines direction of travel (sinusoid output defines step-size, hence speed).
 
-    // start at center position. Go through one sinusoidal rotation: going from NeckC, NeckR, NeckL,NeckC.
-
-    int neck = NeckC;   // start at center position.
-
-    int state = 1;      // defines direction of travel (sinusoid defines step-size).
-
-
-    for(int i = 1; i < 2*NeckRange; i++)
+    while(1)
     {
         switch(state)
         {
@@ -64,48 +74,72 @@ void sinusoidal_neck()
             case 1:
 
                 // Turning right
-                neck -= get_sin_step(neck);
+                //neck -= get_sin_step(neck);
+                Neck -= 5;
 
-                if(neck <= NeckR)
+                if(Neck <= NeckR)
                 {
-                    state = 2; //start turning left once max of range is reached.
+                    state = 2; //start turning left once min of range is reached.
+                    Neck = NeckR;
                 }
+
+                update_servo_position();
 
                 break;
 
-            // (2) rotate from NeckR to NeckL
+            /* (2) rotate from NeckR to NeckL. */
             case 2:
 
                 // Turning left
-                neck += get_sin_step(neck);
+                //neck += get_sin_step(neck);
+                Neck += 5;
 
-                if(1280)
+                if(Neck >= NeckL)
                 {
-                    state = 3; //start turning right once min of range is reached.
+                    state = 3; //start turning right once max of range is reached.
+                    Neck = NeckL;
                 }
+
+                update_servo_position();
 
                 break;
 
-            // (3) rotate from NeckL to NeckC.
+            /* (3) rotate from NeckL to NeckC. */
             case 3:
 
                 // turning right
+                // -=get_sin_step(neck);
+                Neck -= 5;
 
-                if(1530)
+                if(Neck <= NeckC)
                 {
-
+                    Neck = NeckC;
+                    update_servo_position();
+                    return 0;   //exit when done
                 }
 
+                update_servo_position();
+
                 break;
+
+            /* Something went wrong ...*/
+            default:
+
+                return -1;
         }
 
+
+        /* Exit loop and safely deallocate memory for display windows if ESC key is pressed */
+        if (waitKey(10) == 27)
+        {
+            destroyAllWindows();
+            break;
+        }
+        else
+        {
+            waitKey(20);
+        }
     }
-
-    //get current neck value
-    neck = neck/974;
-
-
-
 }
 
 
@@ -118,9 +152,9 @@ int main(int argc, char *argv[])
     Neck= NeckC;
 
     /* Template code body: select ROI, and track using correlation */
-    template_code_script();
+    //template_code_script();
 
-
+    sinusoidal_neck();
 
 
 

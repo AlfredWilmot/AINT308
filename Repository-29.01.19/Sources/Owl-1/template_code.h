@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <math.h>
 #include <sys/types.h>
 #include <iostream> // for standard I/O
 #include <string>   // for strings
