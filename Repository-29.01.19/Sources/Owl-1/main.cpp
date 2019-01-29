@@ -1,32 +1,3 @@
-// owl.cpp : Defines the entry point for the console application.
-/* Phil Culverhouse Oct 2016 (c) Plymouth UNiversity
- *
- * Uses IP sockets to communicate to the owl robot (see owl-comms.h)
- * Uses OpenCV to perform normalised cross correlation to find a match to a template
- * (see owl-cv.h).
- * PWM definitions for the owl servos are held in owl-pwm.h
- * includes bounds check definitions
- * requires setting for specific robot
- *
- * This demosntration programs does the following:
- * a) loop 1 - take picture, check arrow keys
- *             move servos +5 pwm units for each loop
- *             draw 64x64 pixel square overlaid on Right image
- *             if 'c' is pressed copy patch into a template for matching with left
- *              exit loop 1;
- * b) loop 2 - perform Normalised Cross Correlation between template and left image
- *             move Left eye to centre on best match with template
- *             (treats Right eye are dominate in this example).
- *             loop
- *             on exit by ESC key
- *                  go back to loop 1
- *
- * First start communcations on Pi by running 'python PFCpacket.py'
- * Then run this program. The Pi server prints out [Rx Ry Lx Ly] pwm values and loops
- *
- * NOTE: this program is just a demonstrator, the right eye does not track, just the left.
- */
-
 #include "template_code.h"
 
 #include <math.h>
@@ -39,20 +10,33 @@ using namespace cv;
 /* Moves all servos to the position corresponding to the latest PWM mark-period value */
 void update_servo_position()
 {
+    /* Construct servo control packet */
     CMDstream.str("");
     CMDstream.clear();
     CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
     CMD = CMDstream.str();
     string RxPacket= OwlSendPacket (u_sock, CMD.c_str());
+
+    /* Induce delay to give packet enought time to send */
+    waitKey(20);
 }
 
 /* Defines the step that should be taken as a sinusoidal function of the current neck position */
 int get_sin_step(int neck_val)
 {
- int step = int( round( (sin(neck_val/974) - 0.904)*100 ) ) ;
+ //int step = int((sin(double(neck_val)/double(974)) - 0.904)*200) ;
+ double calc_step = (sin(double(neck_val)/974) - 0.904)*800;
 
- return step;
+ int step_out = int(round(calc_step));
 
+ if (step_out <= 0)
+ {
+     return 10;
+ }
+ else
+ {
+    return step_out;
+ }
 }
 
 /* Test script for driving neck in a sinusoidal motion (peak at centre) */
@@ -74,8 +58,8 @@ int sinusoidal_neck()
             case 1:
 
                 // Turning right
-                //neck -= get_sin_step(neck);
-                Neck -= 5;
+                Neck -= get_sin_step(Neck);
+                //Neck -= 5;
 
                 if(Neck <= NeckR)
                 {
@@ -91,7 +75,7 @@ int sinusoidal_neck()
             case 2:
 
                 // Turning left
-                //neck += get_sin_step(neck);
+                Neck += get_sin_step(Neck);
                 Neck += 5;
 
                 if(Neck >= NeckL)
@@ -108,8 +92,8 @@ int sinusoidal_neck()
             case 3:
 
                 // turning right
-                // -=get_sin_step(neck);
-                Neck -= 5;
+                Neck -=get_sin_step(Neck);
+                //Neck -= 5;
 
                 if(Neck <= NeckC)
                 {
@@ -135,10 +119,6 @@ int sinusoidal_neck()
             destroyAllWindows();
             break;
         }
-        else
-        {
-            waitKey(20);
-        }
     }
 }
 
@@ -154,8 +134,10 @@ int main(int argc, char *argv[])
     /* Template code body: select ROI, and track using correlation */
     //template_code_script();
 
-    sinusoidal_neck();
-
+    while(1)
+    {
+        sinusoidal_neck();
+    }
 
 
     #ifdef _WIN32

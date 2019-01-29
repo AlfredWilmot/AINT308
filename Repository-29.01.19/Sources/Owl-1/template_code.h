@@ -1,3 +1,32 @@
+// owl.cpp : Defines the entry point for the console application.
+/* Phil Culverhouse Oct 2016 (c) Plymouth UNiversity
+ *
+ * Uses IP sockets to communicate to the owl robot (see owl-comms.h)
+ * Uses OpenCV to perform normalised cross correlation to find a match to a template
+ * (see owl-cv.h).
+ * PWM definitions for the owl servos are held in owl-pwm.h
+ * includes bounds check definitions
+ * requires setting for specific robot
+ *
+ * This demosntration programs does the following:
+ * a) loop 1 - take picture, check arrow keys
+ *             move servos +5 pwm units for each loop
+ *             draw 64x64 pixel square overlaid on Right image
+ *             if 'c' is pressed copy patch into a template for matching with left
+ *              exit loop 1;
+ * b) loop 2 - perform Normalised Cross Correlation between template and left image
+ *             move Left eye to centre on best match with template
+ *             (treats Right eye are dominate in this example).
+ *             loop
+ *             on exit by ESC key
+ *                  go back to loop 1
+ *
+ * First start communcations on Pi by running 'python PFCpacket.py'
+ * Then run this program. The Pi server prints out [Rx Ry Lx Ly] pwm values and loops
+ *
+ * NOTE: this program is just a demonstrator, the right eye does not track, just the left.
+ */
+
 #ifndef TEMPLATE_CODE_H
 #define TEMPLATE_CODE_H
 
