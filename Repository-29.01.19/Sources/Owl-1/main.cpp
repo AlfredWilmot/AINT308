@@ -27,24 +27,19 @@
  * NOTE: this program is just a demonstrator, the right eye does not track, just the left.
  */
 
-#include <iostream>
-#include <fstream>
-#include <math.h>
-
-#include <sys/types.h>
-//#include <unistd.h>
-
-#include "owl-pwm.h"
-#include "owl-comms.h"
-#include "owl-cv.h"
-
-
-#include <iostream> // for standard I/O
-#include <string>   // for strings
-
+#include "template_code.h"
 
 using namespace std;
 using namespace cv;
+
+/* Defines the step that should be taken as a sinusoidal function of the current neck position */
+int get_sin_step(int neck_val)
+{
+ int step = int( round( (sin(neck_val/974) - 0.904)*100 ) ) ;
+
+ return step;
+
+}
 
 /* Test script for driving neck in a sinusoidal motion (peak at centre) */
 void sinusoidal_neck()
@@ -68,10 +63,12 @@ void sinusoidal_neck()
             // (1) rotate from NeckC to NeckR.
             case 1:
 
-                // if i >= NeckC-NeckR, start turning left.
-                if(430)
-                {
+                // Turning right
+                neck -= get_sin_step(neck);
 
+                if(neck <= NeckR)
+                {
+                    state = 2; //start turning left once max of range is reached.
                 }
 
                 break;
@@ -79,19 +76,26 @@ void sinusoidal_neck()
             // (2) rotate from NeckR to NeckL
             case 2:
 
-            if(1280)
-            {
+                // Turning left
+                neck += get_sin_step(neck);
 
-            }
+                if(1280)
+                {
+                    state = 3; //start turning right once min of range is reached.
+                }
+
                 break;
 
             // (3) rotate from NeckL to NeckC.
             case 3:
 
-            if(1530)
-            {
+                // turning right
 
-            }
+                if(1530)
+                {
+
+                }
+
                 break;
         }
 
