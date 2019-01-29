@@ -47,7 +47,7 @@ using namespace std;
 using namespace cv;
 
 /* Test script for driving neck in a sinusoidal motion (peak at centre) */
-int sinusoidal_neck()
+void sinusoidal_neck()
 {
     //divide by 974, in order to get peak of sin to occur at "NeckC"=1530
 
@@ -170,10 +170,10 @@ int main(int argc, char *argv[])
             int key = waitKey(0); // this is a pause long enough to allow a stable photo to be taken.
             switch (key){
             case'w': //up arrow
-                Ry=Ry+5;Ly=Ly+5;
+                Ry=Ry+5;Ly=Ly-5;
                 break;
             case's': //down arrow
-                Ry=Ry-5;Ly=Ly-5;
+                Ry=Ry-5;Ly=Ly+5;
                 break;
             case'a': //left arrow
                 Rx=Rx-5;Lx=Lx-5;
