@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <time.h>
-
+#include <string>
 using namespace std;
 using namespace cv;
 
@@ -27,6 +27,8 @@ int get_sin_step(int neck_val)
  //int step = int((sin(double(neck_val)/double(974)) - 0.904)*200) ;
  double calc_step = (sin(double(neck_val)/974) - 0.904)*800;
 
+ cout << "Step size: " << calc_step;
+
  int step_out = int(round(calc_step));
 
  if (step_out <= 0)
@@ -37,6 +39,63 @@ int get_sin_step(int neck_val)
  {
     return step_out;
  }
+}
+
+
+/* global variables that keep track of the last known step-sizes of a given axis */
+static int step_Rx   = 0;
+static int step_Ry   = 0;
+static int step_Lx   = 0;
+static int step_Ly   = 0;
+static int step_Neck = 0;
+
+#define pi 3.14159265358979323846
+
+/* input position start & stop, and the axis to be actuated */
+int sine_motion(int start, int stop, std::string axis_to_move)
+{
+    double midpoint = abs(start - stop)/2.0;
+
+    double scaling_factor = pi/(start+stop);
+
+
+
+    if(axis_to_move == "Rx")
+    {
+        if(step_Rx == 0)
+        {
+            step_Rx = start;
+        }
+        else
+        {
+             step_Rx += sin(step_Rx/scaling_factor);
+        }
+
+
+    }
+    else if(axis_to_move == "Ry")
+    {
+
+    }
+    else if(axis_to_move == "Lx")
+    {
+
+    }
+    else if(axis_to_move == "Ly")
+    {
+
+    }
+    else if(axis_to_move == "Neck")
+    {
+
+    }
+
+    double step = sin(scaling_factor);
+
+    /* Debuggery */
+    cout << "user passed: " << axis_to_move;
+
+    return 0;
 }
 
 /* Test script for driving neck in a sinusoidal motion (peak at centre) */
@@ -136,7 +195,9 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        sinusoidal_neck();
+        //sinusoidal_neck();
+        sine_motion(1100, 1950, "Neck");
+        waitKey(100);
     }
 
 
