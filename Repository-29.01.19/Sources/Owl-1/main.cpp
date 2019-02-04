@@ -43,34 +43,73 @@ int get_sin_step(int neck_val)
 
 
 /* global variables that keep track of the last known step-sizes of a given axis */
-static int step_Rx   = 0;
-static int step_Ry   = 0;
-static int step_Lx   = 0;
-static int step_Ly   = 0;
-static int step_Neck = 0;
+static int step_Rx   = -1;
+static int step_Ry   = -1;
+static int step_Lx   = -1;
+static int step_Ly   = -1;
+static int step_Neck = -1;
 
 #define pi 3.14159265358979323846
 
 /* input position start & stop, and the axis to be actuated */
 int sine_motion(int start, int stop, std::string axis_to_move)
 {
-    double midpoint = abs(start - stop)/2.0;
 
-    double scaling_factor = pi/(start+stop);
-
+    double x_axis_scaling = -pi/abs(start-stop);
+    double step_scaling = abs(start-stop)/50;
 
 
     if(axis_to_move == "Rx")
     {
-        if(step_Rx == 0)
+
+        /* If the step has not been defined yet, move servo into position before taking any steps.
+           Reset step value to -1 once the stop position is reached. */
+        if(step_Rx == -1)
         {
-            step_Rx = start;
+            step_Rx = 0;
+            Rx = start;
+            update_servo_position();
+        }
+
+        /* increment step */
+        step_Rx += int( round( (sin(step_Rx * x_axis_scaling + pi) + 1) * step_scaling ) );
+
+        /* positive rotation */
+        if(start < stop)
+        {
+            Rx += step_Rx;
+
+            /* saturate joint value to stop position if it exceeeds it */
+            Rx >= stop ? Rx = stop : Rx = Rx;
+
+        }
+        /* negative rotation */
+        else if(start > stop)
+        {
+            Rx -= step_Rx;
+
+            /* saturate joint value to stop position if it falls below it */
+            Rx <= stop ? Rx = stop : Rx = Rx;
+
         }
         else
         {
-             step_Rx += sin(step_Rx/scaling_factor);
+            cout << "Invalid input! Do nothing.\n";
         }
 
+
+        update_servo_position();
+        cout << " Step size: " << step_Rx << "\nOutput value: " << Rx << "\n\n";
+
+        /* Finished moving from start to stop */
+        if(Rx == stop)
+        {
+            /* flag the step counter*/
+            step_Rx = -1;
+
+            /* return 1 to indicate finished moving along this axis */
+            return 1;
+        }
 
     }
     else if(axis_to_move == "Ry")
@@ -90,11 +129,7 @@ int sine_motion(int start, int stop, std::string axis_to_move)
 
     }
 
-    double step = sin(scaling_factor);
-
-    /* Debuggery */
-    cout << "user passed: " << axis_to_move;
-
+    /* indicate current axis has not yet reached it's destination */
     return 0;
 }
 
@@ -193,11 +228,11 @@ int main(int argc, char *argv[])
     /* Template code body: select ROI, and track using correlation */
     //template_code_script();
 
-    while(1)
+    while(sine_motion(RxRv, RxLv, "Rx") == 0)
     {
         //sinusoidal_neck();
-        sine_motion(1100, 1950, "Neck");
-        waitKey(100);
+        //sine_motion(RxRv, RxLv, "Rx");
+
     }
 
 
