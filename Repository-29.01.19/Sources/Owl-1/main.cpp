@@ -56,7 +56,7 @@ int sine_motion(int start, int stop, std::string axis_to_move)
 {
 
     double x_axis_scaling = -pi/abs(start-stop);
-    double step_scaling = abs(start-stop)/50;
+    //double step_scaling = abs(start-stop)/80;
 
 
     if(axis_to_move == "Rx")
@@ -72,7 +72,7 @@ int sine_motion(int start, int stop, std::string axis_to_move)
         }
 
         /* increment step */
-        step_Rx += int( round( (sin(step_Rx * x_axis_scaling + pi) + 1) * step_scaling ) );
+        step_Rx += int( round( (sin(step_Rx * x_axis_scaling + pi) + 1) * 10 ) );
 
         /* positive rotation */
         if(start < stop)
@@ -80,7 +80,12 @@ int sine_motion(int start, int stop, std::string axis_to_move)
             Rx += step_Rx;
 
             /* saturate joint value to stop position if it exceeeds it */
-            Rx >= stop ? Rx = stop : Rx = Rx;
+            //Rx >= stop ? Rx = stop : Rx = Rx;
+            if(Rx >= stop)
+            {
+                Rx = stop;
+                step_Rx = -1;
+            }
 
         }
         /* negative rotation */
@@ -89,27 +94,30 @@ int sine_motion(int start, int stop, std::string axis_to_move)
             Rx -= step_Rx;
 
             /* saturate joint value to stop position if it falls below it */
-            Rx <= stop ? Rx = stop : Rx = Rx;
-
+            //Rx <= stop ? Rx = stop : Rx = Rx;
+            if(Rx <= stop)
+            {
+                Rx = stop;
+                step_Rx = -1;
+            }
         }
         else
         {
             cout << "Invalid input! Do nothing.\n";
         }
 
-
         update_servo_position();
+
         cout << " Step size: " << step_Rx << "\nOutput value: " << Rx << "\n\n";
 
         /* Finished moving from start to stop */
-        if(Rx == stop)
+        if(step_Rx == -1)
         {
-            /* flag the step counter*/
-            step_Rx = -1;
-
             /* return 1 to indicate finished moving along this axis */
             return 1;
         }
+
+
 
     }
     else if(axis_to_move == "Ry")
@@ -230,7 +238,7 @@ int main(int argc, char *argv[])
 
     while(sine_motion(RxRv, RxLv, "Rx") == 0)
     {
-        //sinusoidal_neck();
+
         //sine_motion(RxRv, RxLv, "Rx");
 
     }
