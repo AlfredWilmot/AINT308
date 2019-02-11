@@ -52,89 +52,70 @@ static int step_Neck = -1;
 #define pi 3.14159265358979323846
 
 /* input position start & stop, and the axis to be actuated */
-int sine_motion(int start, int stop, std::string axis_to_move)
+int sine_motion(int start, int stop, int *axis_ptr, int *axis_step_ptr)
 {
 
     double x_axis_scaling = -pi/abs(start-stop);
     //double step_scaling = abs(start-stop)/80;
 
+    int store_sine_output = 0;
 
-    if(axis_to_move == "Rx")
+    /* If the step has not been defined yet, move servo into position before taking any steps.
+       Reset step value to -1 once the stop position is reached. */
+    if(*axis_step_ptr == -1)
     {
-
-        /* If the step has not been defined yet, move servo into position before taking any steps.
-           Reset step value to -1 once the stop position is reached. */
-        if(step_Rx == -1)
-        {
-            step_Rx = 0;
-            Rx = start;
-            update_servo_position();
-        }
-
-        /* increment step */
-        step_Rx += int( round( (sin(step_Rx * x_axis_scaling + pi) + 1) * 10 ) );
-
-        /* positive rotation */
-        if(start < stop)
-        {
-            Rx += step_Rx;
-
-            /* saturate joint value to stop position if it exceeeds it */
-            //Rx >= stop ? Rx = stop : Rx = Rx;
-            if(Rx >= stop)
-            {
-                Rx = stop;
-                step_Rx = -1;
-            }
-
-        }
-        /* negative rotation */
-        else if(start > stop)
-        {
-            Rx -= step_Rx;
-
-            /* saturate joint value to stop position if it falls below it */
-            //Rx <= stop ? Rx = stop : Rx = Rx;
-            if(Rx <= stop)
-            {
-                Rx = stop;
-                step_Rx = -1;
-            }
-        }
-        else
-        {
-            cout << "Invalid input! Do nothing.\n";
-        }
-
+        *axis_step_ptr = 0;
+        *axis_ptr = start;
         update_servo_position();
+    }
 
-        cout << " Step size: " << step_Rx << "\nOutput value: " << Rx << "\n\n";
+    /* store sine output */
+    store_sine_output = int( round( (sin(*axis_step_ptr * x_axis_scaling + pi) + 1) * 10 ) );
 
-        /* Finished moving from start to stop */
-        if(step_Rx == -1)
+    /* increment step */
+    *axis_step_ptr += store_sine_output;
+
+    /* positive rotation */
+    if(start < stop)
+    {
+        *axis_ptr += store_sine_output;
+
+        /* saturate joint value to stop position if it exceeeds it */
+        //Rx >= stop ? Rx = stop : Rx = Rx;
+        if(*axis_ptr >= stop)
         {
-            /* return 1 to indicate finished moving along this axis */
-            return 1;
+            *axis_ptr = stop;
+            *axis_step_ptr = -1;
         }
 
-
-
     }
-    else if(axis_to_move == "Ry")
+    /* negative rotation */
+    else if(start > stop)
     {
+        *axis_ptr -= store_sine_output;
 
+        /* saturate joint value to stop position if it falls below it */
+        //Rx <= stop ? Rx = stop : Rx = Rx;
+        if(*axis_ptr <= stop)
+        {
+            *axis_ptr = stop;
+            *axis_step_ptr = -1;
+        }
     }
-    else if(axis_to_move == "Lx")
+    else
     {
-
+        cout << "Invalid input! Do nothing.\n";
     }
-    else if(axis_to_move == "Ly")
-    {
 
-    }
-    else if(axis_to_move == "Neck")
-    {
+    update_servo_position();
 
+    cout << " Step size: " << store_sine_output << "\nCurrent step value: " << *axis_step_ptr << "\nCurrent axis value: " <<*axis_ptr << "\n\n";
+
+    /* Finished moving from start to stop */
+    if(*axis_step_ptr == -1)
+    {
+        /* return 1 to indicate finished moving along this axis */
+        return 1;
     }
 
     /* indicate current axis has not yet reached it's destination */
@@ -236,7 +217,7 @@ int main(int argc, char *argv[])
     /* Template code body: select ROI, and track using correlation */
     //template_code_script();
 
-    while(sine_motion(RxRv, RxLv, "Rx") == 0)
+    while(sine_motion(RxRv, RxLv, &Rx, &step_Rx) == 0)
     {
 
         //sine_motion(RxRv, RxLv, "Rx");
