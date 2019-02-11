@@ -56,7 +56,7 @@ int sine_motion(int start, int stop, int *axis_ptr, int *axis_step_ptr)
 {
 
     double x_axis_scaling = -pi/abs(start-stop);
-    //double step_scaling = abs(start-stop)/80;
+    double step_scaling = abs(start-stop)/20;
 
     int store_sine_output = 0;
 
@@ -70,7 +70,7 @@ int sine_motion(int start, int stop, int *axis_ptr, int *axis_step_ptr)
     }
 
     /* store sine output */
-    store_sine_output = int( round( (sin(*axis_step_ptr * x_axis_scaling + pi) + 1) * 10 ) );
+    store_sine_output = int( round( (sin(*axis_step_ptr * x_axis_scaling + pi) + 0.1) * step_scaling ) );
 
     /* increment step */
     *axis_step_ptr += store_sine_output;
@@ -107,7 +107,7 @@ int sine_motion(int start, int stop, int *axis_ptr, int *axis_step_ptr)
         cout << "Invalid input! Do nothing.\n";
     }
 
-    update_servo_position();
+    //update_servo_position();
 
     cout << " Step size: " << store_sine_output << "\nCurrent step value: " << *axis_step_ptr << "\nCurrent axis value: " <<*axis_ptr << "\n\n";
 
@@ -217,11 +217,48 @@ int main(int argc, char *argv[])
     /* Template code body: select ROI, and track using correlation */
     //template_code_script();
 
-    while(sine_motion(RxRv, RxLv, &Rx, &step_Rx) == 0)
+    int stage = 0;
+
+
+    while(1)
     {
+        /* Behaviour 1 */
+        switch (stage)
+        {
 
-        //sine_motion(RxRv, RxLv, "Rx");
+        case(0):
+            sine_motion(RxC, RxLv, &Rx, &step_Rx) == 0 ? stage = stage : stage++;
+            break;
 
+        case(1):
+            sine_motion(RxLv, RxRv, &Rx, &step_Rx) == 0 ? stage = stage : stage++;
+            break;
+
+        case(2):
+            sine_motion(RyC, RyBv, &Ry, &step_Ry) == 0 ? stage = stage : stage++;
+            break;
+
+        case(3):
+            sine_motion(NeckC, NeckR, &Neck, &step_Neck) == 0 ? stage = stage : stage++;
+            break;
+
+        case(4):
+            sine_motion(NeckR, NeckC, &Neck, &step_Neck) == 0 ? stage = stage : stage++;
+            break;
+
+        case(5):
+
+            waitKey(100);
+            stage = 0;
+
+            break;
+
+        case(6):
+
+            break;
+        }
+
+        update_servo_position();
     }
 
 
