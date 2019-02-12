@@ -480,6 +480,7 @@ int SheepishGlance()
     }
     return 0;
 }
+
 /* Scanning horizon */
 int ScanHorizon()
 {
@@ -493,8 +494,8 @@ int ScanHorizon()
             /* Pan eyes from center to left */
             case 0:
 
-                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxC, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
-                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxC, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
+                Rx_done == 0 ? Rx_done = sine_motion(0.05, RxC, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.05, LxC, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
 
 
 
@@ -512,8 +513,8 @@ int ScanHorizon()
             /* Pan eyes from left to right */
             case 1:
 
-                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxLm, RxRm, &Rx, &step_Rx) : Rx_done = Rx_done;
-                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxLm, LxRm, &Lx, &step_Lx) : Lx_done = Lx_done;
+                Rx_done == 0 ? Rx_done = sine_motion(0.05, RxLm, RxRm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.05, LxLm, LxRm, &Lx, &step_Lx) : Lx_done = Lx_done;
 
 
 
@@ -530,8 +531,8 @@ int ScanHorizon()
 
             /* Pan eyes from right to left  */
             case 2:
-                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxRm, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
-                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxRm, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
+                Rx_done == 0 ? Rx_done = sine_motion(0.05, RxRm, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.05, LxRm, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
 
 
 
@@ -548,8 +549,8 @@ int ScanHorizon()
 
             /* Pan eyes from left back to center */
             case 3:
-                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxLm, RxC, &Rx, &step_Rx) : Rx_done = Rx_done;
-                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxLm, LxC, &Lx, &step_Lx) : Lx_done = Lx_done;
+                Rx_done == 0 ? Rx_done = sine_motion(0.05, RxLm, RxC, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.05, LxLm, LxC, &Lx, &step_Lx) : Lx_done = Lx_done;
 
 
 
