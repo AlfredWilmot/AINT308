@@ -208,6 +208,90 @@ int sinusoidal_neck()
 }
 
 
+/* Mimicking Chameleon eye movement from first ten seconds of video (https://www.youtube.com/watch?v=otmt6YUplDw) */
+int Chameleon ()
+{
+    // 0) Right eye looking forward, left eye angled downwards.
+    Rx = RxC;
+    Ry = RyC;
+
+    Lx = LxLm;
+    Ly = LyBm + LyRangeM/4;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 1) Left eye slightly rotates towards the center and downwards.
+
+    Lx += LxRangeM/4;
+    Ly -= LyRangeM/4;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 2) Left eye rotates back to left-most position, but maintains same downward angle.
+    Lx = LxLm;
+    update_servo_position();
+    waitKey(980);
+
+    // 3) Right eye rotates slightly upwards, and left eye tilts upwards to look at horizon.
+    Ry = RyC + RyRangeM/4;
+
+    Ly = LyC;
+    update_servo_position();
+    waitKey(980);
+
+    // 4) Right eye rotates down and towards the left, left eye rotates downwards.
+    Ry = RyBm + RyRangeM/4;
+    Rx = RxLm + RxRangeM/4;
+
+    Ly = LyBm;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 5) Left eye goes back to center of y axis.
+    Ly = LyC;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 6) Left eye looks all the way up.
+    Ly = LyTm;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 7) Right eye rotates slightly towards the left and up, and left eye goes slightly towards the right and looks at horizon.
+    Rx = RxLm;
+    Ry = RyC;
+
+    Ly = LyC;
+    Lx = LxLm + LxRangeM/5;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 8) Right eye rotates to the right and looks slightly downwards; Left eye goes towards the left and slightly down.
+    Rx = RxRm - RxRangeM/4;
+    Ry = RyBm;
+
+    Ly = LyC + LyRangeM/4;
+    Lx = LxLm + LxRangeM/4;
+
+    update_servo_position();
+    waitKey(980);
+
+    // 9) Right eye rotates all the way right and upwards to horizon, left eye rotates all the way down.
+    Rx = RxRm;
+    Ry = RyC;
+
+    Ly = LyBm;
+
+    update_servo_position();
+    waitKey(980);
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -236,85 +320,7 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        // 0) Right eye looking forward, left eye angled downwards.
-        Rx = RxC;
-        Ry = RyC;
 
-        Lx = LxLm;
-        Ly = LyBm + LyRangeM/4;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 1) Left eye slightly rotates towards the center and downwards.
-
-        Lx += LxRangeM/4;
-        Ly -= LyRangeM/4;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 2) Left eye rotates back to left-most position, but maintains same downward angle.
-        Lx = LxLm;
-        update_servo_position();
-        waitKey(980);
-
-        // 3) Right eye rotates slightly upwards, and left eye tilts upwards to look at horizon.
-        Ry = RyC + RyRangeM/4;
-
-        Ly = LyC;
-        update_servo_position();
-        waitKey(980);
-
-        // 4) Right eye rotates down and towards the left, left eye rotates downwards.
-        Ry = RyBm + RyRangeM/4;
-        Rx = RxLm + RxRangeM/4;
-
-        Ly = LyBm;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 5) Left eye goes back to center of y axis.
-        Ly = LyC;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 6) Left eye looks all the way up.
-        Ly = LyTm;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 7) Right eye rotates slightly towards the left and up, and left eye goes slightly towards the right and looks at horizon.
-        Rx = RxLm;
-        Ry = RyC;
-
-        Ly = LyC;
-        Lx = LxLm + LxRangeM/5;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 8) Right eye rotates to the right and looks slightly downwards; Left eye goes towards the left and slightly down.
-        Rx = RxRm - RxRangeM/4;
-        Ry = RyBm;
-
-        Ly = LyC + LyRangeM/4;
-        Lx = LxLm + LxRangeM/4;
-
-        update_servo_position();
-        waitKey(980);
-
-        // 9) Right eye rotates all the way right and upwards to horizon, left eye rotates all the way down.
-        Rx = RxRm;
-        Ry = RyC;
-
-        Ly = LyBm;
-
-        update_servo_position();
-        waitKey();
 
 
 
@@ -331,62 +337,4 @@ int main(int argc, char *argv[])
     exit(0); // exit here for servo testing only
 }
 
-
-
-
-
-
-
-
-
-///* Behaviour 1 */
-//switch (stage)
-//{
-
-//case(0):
-
-//    if(!Rx_done)
-//    {
-//        Rx_done = sine_motion(0.05, RxC, RxLv, &Rx, &step_Rx);
-//    }
-//    if(!Neck_done)
-//    {
-//        Neck_done = sine_motion(0.02, NeckC, NeckL, &Neck, &step_Neck);
-//    }
-//    if(Neck_done && Rx_done)
-//    {
-//        Rx_done = 0;
-//        Neck_done = 0;
-//        stage++;
-//    }
-
-//    break;
-
-//case(1):
-//    sine_motion(0.05, RxLv, RxRv, &Rx, &step_Rx) == 0 ? stage = stage : stage++;
-//    break;
-
-//case(2):
-//    sine_motion(0.05, RyC, RyBv, &Ry, &step_Ry) == 0 ? stage = stage : stage++;
-//    break;
-
-//case(3):
-//    sine_motion(0.02, NeckL, NeckR, &Neck, &step_Neck) == 0 ? stage = stage : stage++;
-//    break;
-
-//case(4):
-//    sine_motion(0.02, NeckR, NeckC, &Neck, &step_Neck) == 0 ? stage = stage : stage++;
-//    break;
-
-//case(5):
-
-//    waitKey(100);
-//    stage = 0;
-
-//    break;
-
-//case(6):
-
-//    break;
-//}
 
