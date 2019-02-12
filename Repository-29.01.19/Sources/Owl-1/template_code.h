@@ -355,6 +355,7 @@ int Chameleon ()
     return 0;
 }
 
+/* Recreating the very cheeky eye-roll displayed here: https://www.youtube.com/watch?v=x2W0tzz7fS8*/
 int CheekyEyeRoll()
 {
     /* First move eyes up and then around to the right (quickly), pause slightly, and slowly move neck to the right */
@@ -426,6 +427,103 @@ int CheekyEyeRoll()
         }
 
         update_servo_position();
+    }
+
+    return 0;
+}
+
+/* Sheepish glance */
+
+/* Scanning horizon */
+int ScanHorizon()
+{
+
+    int state = 0;
+    while(state < 4)
+    {
+
+        switch (state) {
+
+            /* Pan eyes from center to left */
+            case 0:
+
+                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxC, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxC, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
+
+
+
+                if(Rx_done && Lx_done)
+                {
+                    /* Wait for dramatic effect! */
+                    waitKey(100);
+
+                    state++;
+                    Rx_done = 0;
+                    Lx_done = 0;
+                }
+                break;
+
+            /* Pan eyes from left to right */
+            case 1:
+
+                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxLm, RxRm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxLm, LxRm, &Lx, &step_Lx) : Lx_done = Lx_done;
+
+
+
+                if(Rx_done && Lx_done)
+                {
+                    /* Wait for dramatic effect! */
+                    waitKey(100);
+
+                    state++;
+                    Rx_done = 0;
+                    Lx_done = 0;
+                }
+                break;
+
+            /* Pan eyes from right to left  */
+            case 2:
+                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxRm, RxLm, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxRm, LxLm, &Lx, &step_Lx) : Lx_done = Lx_done;
+
+
+
+                if(Rx_done && Lx_done)
+                {
+                    /* Wait for dramatic effect! */
+                    waitKey(100);
+
+                    state++;
+                    Rx_done = 0;
+                    Lx_done = 0;
+                }
+                break;
+
+            /* Pan eyes from left back to center */
+            case 3:
+                Rx_done == 0 ? Rx_done = sine_motion(0.1, RxLm, RxC, &Rx, &step_Rx) : Rx_done = Rx_done;
+                Lx_done == 0 ? Lx_done = sine_motion(0.1, LxLm, LxC, &Lx, &step_Lx) : Lx_done = Lx_done;
+
+
+
+                if(Rx_done && Lx_done)
+                {
+                    /* Wait for dramatic effect! */
+                    waitKey(100);
+
+                    state++;
+                    Rx_done = 0;
+                    Lx_done = 0;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        update_servo_position();
+
     }
 
     return 0;
@@ -553,6 +651,9 @@ int template_code_script()
                     break;
 
                 case '5':   /* SCAN HORIZON: MIMIC HUMAN TARGET TRACKING */
+
+                    ScanHorizon();
+                    reset_servos();
 
                     break;
 
