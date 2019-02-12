@@ -17,6 +17,8 @@ void update_servo_position()
     CMD = CMDstream.str();
     string RxPacket= OwlSendPacket (u_sock, CMD.c_str());
 
+    cout << "\nRx:" << Rx << "\nRy:" << Ry << "\nLx:" << Lx << "\nLy:" << Ly << "\nNeck:"  << Neck << "\n";
+
     /* Induce delay to give packet enought time to send */
     waitKey(20);
 }
@@ -265,13 +267,57 @@ int main(int argc, char *argv[])
         waitKey(980);
 
         // 4) Right eye rotates down and towards the left, left eye rotates downwards.
-        Ry = RyBm;
-        Rx = RxLm;
+        Ry = RyBm + RyRangeM/4;
+        Rx = RxLm + RxRangeM/4;
 
+        Ly = LyBm;
+
+        update_servo_position();
+        waitKey(980);
+
+        // 5) Left eye goes back to center of y axis.
         Ly = LyC;
 
         update_servo_position();
         waitKey(980);
+
+        // 6) Left eye looks all the way up.
+        Ly = LyTm;
+
+        update_servo_position();
+        waitKey(980);
+
+        // 7) Right eye rotates slightly towards the left and up, and left eye goes slightly towards the right and looks at horizon.
+        Rx = RxLm;
+        Ry = RyC;
+
+        Ly = LyC;
+        Lx = LxLm + LxRangeM/5;
+
+        update_servo_position();
+        waitKey(980);
+
+        // 8) Right eye rotates to the right and looks slightly downwards; Left eye goes towards the left and slightly down.
+        Rx = RxRm - RxRangeM/4;
+        Ry = RyBm;
+
+        Ly = LyC + LyRangeM/4;
+        Lx = LxLm + LxRangeM/4;
+
+        update_servo_position();
+        waitKey(980);
+
+        // 9) Right eye rotates all the way right and upwards to horizon, left eye rotates all the way down.
+        Rx = RxRm;
+        Ry = RyC;
+
+        Ly = LyBm;
+
+        update_servo_position();
+        waitKey();
+
+
+
 
 
     }
