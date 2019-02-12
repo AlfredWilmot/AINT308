@@ -433,7 +433,53 @@ int CheekyEyeRoll()
 }
 
 /* Sheepish glance */
+int SheepishGlance()
+{
+    int state = 0;
 
+    while(state < 2)
+    {
+        switch (state) {
+
+        /* Rotate Neck fully right (to face "target"). */
+        case 0:
+
+            Neck_done == 0 ? Neck_done = sine_motion(0.1, NeckC, NeckR, &Neck, &step_Neck) : Neck_done = Neck_done;
+
+            if(Neck_done)
+            {
+                state++;
+                Neck_done = 0;
+            }
+            break;
+
+        /* Slowly rotate Neck to the left, whilst keeping the eyes on the target. */
+        case 1:
+
+            /* (Rx & Ry need to move x-times faster than neck to execute behaviour convincingly--
+             *  x is roughly ratio between radii of neck and y-axes of eye servo) */
+            Rx_done == 0    ? Rx_done = sine_motion(0.02, RxC, RxRm, &Rx, &step_Rx) : Rx_done = Rx_done;
+            Lx_done == 0    ? Lx_done = sine_motion(0.02, LxC, LxRm, &Lx, &step_Lx) : Lx_done = Lx_done;
+
+            Neck_done == 0  ? Neck_done = sine_motion(0.02, NeckR, NeckC, &Neck, &step_Neck) : Neck_done = Neck_done;
+
+            if(Rx_done && Lx_done && Neck_done)
+            {
+                state++;
+                Rx_done = 0;
+                Lx_done = 0;
+                Neck_done = 0;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        update_servo_position();
+    }
+    return 0;
+}
 /* Scanning horizon */
 int ScanHorizon()
 {
@@ -647,6 +693,9 @@ int template_code_script()
                     break;
 
                 case '4':   /* HUMAN BEHAVIOUR 2: SHEEPISH-GLANCE */
+
+                    SheepishGlance();
+                    reset_servos();
 
                     break;
 
