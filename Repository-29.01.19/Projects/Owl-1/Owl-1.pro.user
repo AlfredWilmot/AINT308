@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.8.1, 2019-02-04T17:54:36. -->
+<!-- Written by QtCreator 4.8.1, 2019-02-12T13:47:35. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{ea4adf08-ef5a-49fb-b394-84dbcbbf1485}</value>
+  <value type="QByteArray">{012d850e-d5dc-4b4e-82c2-5ef8719fe41e}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -295,20 +295,19 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Owl-1</value>
+    <value type="QString" key="ProjectExplorer.CustomExecutableRunConfiguration.Executable"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Custom Executable</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/aiwilmot/Desktop/AINT308/Repository-29.01.19/Projects/Owl-1/Owl-1.pro</value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Owl-1.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ProjectExplorer.CustomExecutableRunConfiguration</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory"></value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/aiwilmot/Desktop/AINT308/Repository-29.01.19/Projects/build-Owl-1-Desktop_Qt_5_12_0_MSVC2017_64bit-Debug</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default"></value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

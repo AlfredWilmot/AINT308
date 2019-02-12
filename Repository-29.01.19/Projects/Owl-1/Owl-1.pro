@@ -19,4 +19,5 @@ SOURCES += \
 HEADERS += \
     ../../Sources/Owl-1/owl-comms.h \
     ../../Sources/Owl-1/owl-cv.h \
-    ../../Sources/Owl-1/owl-pwm.h
+    ../../Sources/Owl-1/owl-pwm.h \
+    ../../Sources/Owl-1/userfunctions.h
