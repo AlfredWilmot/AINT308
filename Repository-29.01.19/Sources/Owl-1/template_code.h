@@ -588,6 +588,29 @@ void reset_servos()
 }
 
 
+/* Take a picture with each camera and stream it to the webpage */
+int capture_frames(cv::VideoCapture cap)
+{
+    if (!cap.read(Frame))
+    {
+        cout  << "Could not open the input video: " << source << endl;
+        return -1;
+    }
+    Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
+    //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
+    // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
+    Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
+    Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
+    Mat RightCopy;
+    Right.copyTo(RightCopy);
+    rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
+    imshow("Left",Left);imshow("Right", RightCopy);
+
+
+    waitKey(10); // display the images
+    return 0;
+}
+
 /*****************************************/
 
 int template_code_script()
@@ -609,32 +632,15 @@ int template_code_script()
             return -1;
         }
 
-
-
         reset_servos();
+
+        int key = 0;
 
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP)
         {
-            if (!cap.read(Frame))
-            {
-            cout  << "Could not open the input video: " << source << endl;
-            //         break;
-            }
-            Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-            //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-            Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
-            Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
-            Mat RightCopy;
-            Right.copyTo(RightCopy);
-            rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
-            imshow("Left",Left);imshow("Right", RightCopy);
 
-
-            waitKey(10); // display the images
-            int key = waitKey(0); // this is a pause long enough to allow a stable photo to be taken.
-
+            capture_frames(cap);
 
             switch (key)
             {
