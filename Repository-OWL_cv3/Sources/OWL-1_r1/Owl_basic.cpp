@@ -47,6 +47,27 @@ using namespace std;
 using namespace cv;
 
 
+/* Mouse-click event vars */
+static bool _mouse_clk = false;
+static int _seed_x = 0;
+static int _seed_y = 0;
+
+/*---- Handler method that reacts to user selecting pixel in interactive window ----*/
+void mouseEvent(int evt, int x, int y, int, void*)
+{
+
+    if (evt == CV_EVENT_LBUTTONDOWN)
+    {
+        _mouse_clk = true;      //set flag.
+
+        /* Update the new mouse-selected seed pixel coordinates */
+        _seed_x = x;
+        _seed_y = y;
+
+        std::cout << "Pixel (x,y): " << x << ", " << y << "\n";
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -110,19 +131,21 @@ int main(int argc, char *argv[])
             rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
             imshow("Left",Left);imshow("Right", RightCopy);
 
+            cv::setMouseCallback("Right", mouseEvent, 0);
+
             int key = waitKey(30); // this is a pause long enough to allow a stable photo to be taken.
             printf("%d",key);//mrs added 01/02/2017 to diagnose arrow keys returned code ***************************************************
             switch (key){
-            case 'i': //up
+            case 'w': //up
                 Ry=Ry+5;Ly=Ly-5; // was Ly=+5 Changed BILL
                 break;
-            case 'm'://down
+            case 's'://down
                 Ry=Ry-5;Ly=Ly+5; // was Ly=-5 BILL
                 break;
-            case 'j'://left
+            case 'a'://left
                 Rx=Rx-5;Lx=Lx-5;
                 break;
-            case 'k'://right
+            case 'd'://right
                 Rx=Rx+5;Lx=Lx+5;
                 break;
             case 'c': // lowercase 'c'
