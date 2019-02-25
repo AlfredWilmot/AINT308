@@ -19,6 +19,8 @@ void update_servo_position()
     waitKey(20);
 }
 
+
+
 /* Defines the step that should be taken as a sinusoidal function of the current neck position */
 int get_sin_step(int neck_val)
 {
@@ -48,6 +50,26 @@ static int step_Ly   = -1;
 static int step_Neck = -1;
 
 #define pi 3.14159265358979323846
+
+#define DEG2PWM 11.792
+#define convert2rads pi/180
+
+string moveServoInDeg(double DegRx, double DegLx){
+
+    Rx = static_cast<int>(DegRx * DEG2PWM);
+    Lx = static_cast<int>(DegLx * DEG2PWM);
+    Neck = NeckC;
+    Ry = RyC;
+    Ly = LyC;
+
+    CMDstream.str("");
+    CMDstream.clear();
+    CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+    string CMD = CMDstream.str();
+    string retSTR = OwlSendPacket (u_sock, CMD.c_str());
+    return (retSTR);
+
+}
 
 /* input position start & stop, and the axis to be actuated */
 int sine_motion(double speed, int start, int stop, int *axis_ptr, int *axis_step_ptr)
@@ -194,6 +216,7 @@ int sinusoidal_neck()
         }
 
 
+
         /* Exit loop and safely deallocate memory for display windows if ESC key is pressed */
         if (waitKey(10) == 27)
         {
@@ -289,6 +312,7 @@ int Chameleon ()
 
     return 0;
 }
+
 
 
 

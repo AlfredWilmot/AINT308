@@ -114,6 +114,29 @@ static int step_Neck = -1;
 
 #define pi 3.14159265358979323846
 
+#define DEG2PWM 11.792
+#define convert2rads pi/180
+
+string moveServoInDeg(double DegRx, double DegLx){
+
+    Rx = static_cast<int>(DegRx * DEG2PWM);
+    Lx = static_cast<int>(DegLx * DEG2PWM);
+    Neck = NeckC;
+    Ry = RyC;
+    Ly = LyC;
+
+    cout << "Rx = " << Rx << endl;
+    cout << "Lx = " << Lx << endl;
+
+    CMDstream.str("");
+    CMDstream.clear();
+    CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+    string CMD = CMDstream.str();
+    string retSTR = OwlSendPacket (u_sock, CMD.c_str());
+    return (retSTR);
+
+}
+
 /* input position start & stop, and the axis to be actuated */
 int sine_motion(double speed, int start, int stop, int *axis_ptr, int *axis_step_ptr)
 {
@@ -706,6 +729,14 @@ int template_code_script()
                     reset_servos();
 
                     break;
+
+                case '6':
+
+                moveServoInDeg(140, 100);
+
+
+                    break;
+
 
                             /* DO NOTHING BY DEFAULT */
                 default:
