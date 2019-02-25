@@ -589,9 +589,9 @@ void reset_servos()
 
 
 /* Take a picture with each camera and stream it to the webpage */
-int capture_frames(cv::VideoCapture cap)
+int capture_frames(VideoCapture *cap)
 {
-    if (!cap.read(Frame))
+    if (!cap->read(Frame))
     {
         cout  << "Could not open the input video: " << source << endl;
         return -1;
@@ -601,14 +601,14 @@ int capture_frames(cv::VideoCapture cap)
     // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
     Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
     Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
-    Mat RightCopy;
-    Right.copyTo(RightCopy);
-    rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
-    imshow("Left",Left);imshow("Right", RightCopy);
+    //Mat RightCopy;
+    //Right.copyTo(RightCopy);
+    rectangle( Right, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
+    imshow("Left",Left);imshow("Right", Right);
 
 
     waitKey(10); // display the images
-    return 0;
+    return waitKey(100);
 }
 
 /*****************************************/
@@ -634,13 +634,12 @@ int template_code_script()
 
         reset_servos();
 
-        int key = 0;
-
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP)
         {
 
-            capture_frames(cap);
+            int key = capture_frames(&cap);
+
 
             switch (key)
             {
