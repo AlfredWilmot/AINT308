@@ -29,8 +29,7 @@ LIBS += -lopencv_core \
 
 }
 SOURCES += \
-    ../../Sources/OWL-1_r1/Owl_basic.cpp \
-    ../../Sources/OWL-1_r1/user_made_code.cpp
+    ../../Sources/OWL-1_r1/Owl_basic.cpp
 
 HEADERS += \
     ../../Sources/Owl-1_r1/owl-comms.h \
