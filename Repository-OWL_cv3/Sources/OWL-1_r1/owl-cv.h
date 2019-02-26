@@ -25,7 +25,7 @@ struct OwlCorrel {
 };
 
 Mat OWLtempl; // used in correlation
-Rect target = Rect(320-32, 240-32, 64, 64); // target is at the centre of the camera FOV
+
                              // drawn over whatever is in the centre of the FOV, to act as a template
 
 struct OwlCorrel Owl_matchTemplate(Mat Right, Mat Left, Mat templ, Rect target){
@@ -88,13 +88,14 @@ cv::Mat Frame;
 /*-- Vergence Code --*/
 /*------------------*/
 
-/* Mouse-click event vars */
+/*---- Camera variables ----*/
 static bool _mouse_clk = false;
-//static int _seed_x = 0;
-//static int _seed_y = 0;
+static bool camera_setup_done = false;
 
 const   cv::Point mid_pxl    = cv::Point(320, 240);
 static  cv::Point target_pxl = mid_pxl;
+
+static cv::Rect target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64); // target is at the centre of the camera FOV
 
 static  cv::Mat Left, Right; // images
 
@@ -104,7 +105,7 @@ const std::string left_eye  = "Left_Eye";
 const std::string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
 const std::string PiADDR = "10.0.0.10";
 
-static bool camera_setup_done = false;
+
 
 /*---- Handler method that reacts to user selecting pixel in interactive window ----*/
 void mouseEvent(int evt, int x, int y, int, void*)
@@ -121,9 +122,10 @@ void mouseEvent(int evt, int x, int y, int, void*)
     }
 }
 
+/*---- Loop for camera functionalituy ----*/
 const cv::Mat OWLresult;// correlation result passed back from matchtemplate
 static cv::Mat Frame;
-static cv::VideoCapture cap;              // Open input
+static cv::VideoCapture cap;
 int camera_loop(cv::VideoCapture *vid_cap)
 {
     if (!vid_cap->read(Frame))
@@ -141,6 +143,7 @@ int camera_loop(cv::VideoCapture *vid_cap)
     Right.copyTo(RightCopy);
 
     /* Draw stuff onto img, then show iamges */
+    target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64);
     cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
     if(_mouse_clk) cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
     imshow(left_eye, Left);imshow(right_eye, RightCopy);
@@ -158,3 +161,20 @@ int camera_loop(cv::VideoCapture *vid_cap)
     return cv::waitKey(100); // this is a pause long enough to allow a stable photo to be taken.
 
 }
+
+
+/*---- Moves all servos to the position corresponding to the latest PWM mark-period value ----*/
+//void update_servo_position(int ms_delay = 20)
+//{
+//    /* Construct servo control packet */
+//    CMDstream.str("");
+//    CMDstream.clear();
+//    CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+//    CMD = CMDstream.str();
+//    string RxPacket= OwlSendPacket (u_sock, CMD.c_str());
+
+//    cout << "\nRx:" << Rx << "\nRy:" << Ry << "\nLx:" << Lx << "\nLy:" << Ly << "\nNeck:"  << Neck << "\n";
+
+//    /* Induce delay to give packet enought time to send */
+//    waitKey(ms_delay);
+//}
