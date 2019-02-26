@@ -81,3 +81,80 @@ cv::Mat Frame;
     cout << "Just saved 10 stereo pairs" << Folder <<endl;
     return(0);
 }
+
+
+
+/*--------------------*/
+/*-- Vergence Code --*/
+/*------------------*/
+
+/* Mouse-click event vars */
+static bool _mouse_clk = false;
+//static int _seed_x = 0;
+//static int _seed_y = 0;
+
+const   cv::Point mid_pxl    = cv::Point(320, 240);
+static  cv::Point target_pxl = mid_pxl;
+
+static  cv::Mat Left, Right; // images
+
+const std::string right_eye = "TEST";
+const std::string left_eye  = "Left_Eye";
+
+const std::string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
+const std::string PiADDR = "10.0.0.10";
+
+static bool camera_setup_done = false;
+
+/*---- Handler method that reacts to user selecting pixel in interactive window ----*/
+void mouseEvent(int evt, int x, int y, int, void*)
+{
+
+    if (evt == CV_EVENT_LBUTTONDOWN)
+    {
+        _mouse_clk = true;      //set flag.
+
+        /* Update the new mouse-selected seed pixel coordinates */
+        target_pxl = cv::Point(x,y);
+
+        std::cout << "Pixel (x,y): " << target_pxl.x << ", " << target_pxl.y << "\n";
+    }
+}
+
+const cv::Mat OWLresult;// correlation result passed back from matchtemplate
+static cv::Mat Frame;
+static cv::VideoCapture cap;              // Open input
+int camera_loop(cv::VideoCapture *vid_cap)
+{
+    if (!vid_cap->read(Frame))
+    {
+        std::cout  << "Could not open the input video: " << source << std::endl;
+        //         break;
+        return -2;
+    }
+    cv::Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
+    //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
+    // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
+    Left= FrameFlpd( cv::Rect(0, 0, 640, 480)); // using a rectangle
+    Right=FrameFlpd( cv::Rect(640, 0, 640, 480)); // using a rectangle
+    cv::Mat RightCopy;
+    Right.copyTo(RightCopy);
+
+    /* Draw stuff onto img, then show iamges */
+    cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
+    if(_mouse_clk) cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
+    imshow(left_eye, Left);imshow(right_eye, RightCopy);
+
+    /* Only set-up call-backs once the window is established */
+    if(!camera_setup_done)
+    {
+        cv::setMouseCallback(right_eye, mouseEvent, 0);
+        camera_setup_done = true;
+    }
+
+
+    cv::waitKey(10);
+
+    return cv::waitKey(100); // this is a pause long enough to allow a stable photo to be taken.
+
+}

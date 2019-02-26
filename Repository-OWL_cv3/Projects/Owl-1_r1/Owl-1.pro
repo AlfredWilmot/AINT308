@@ -34,5 +34,4 @@ SOURCES += \
 HEADERS += \
     ../../Sources/Owl-1_r1/owl-comms.h \
     ../../Sources/Owl-1_r1/owl-pwm.h \
-    ../../Sources/Owl-1_r1/owl-cv.h \
-    ../../Sources/Owl-1_r1/user_made_code.h
+    ../../Sources/Owl-1_r1/owl-cv.h

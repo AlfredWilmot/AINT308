@@ -46,8 +46,6 @@
 using namespace std;
 using namespace cv;
 
-#include "user_made_code.h"
-
 
 int main(int argc, char *argv[])
 {
@@ -59,9 +57,6 @@ int main(int argc, char *argv[])
     Rx = RxLm; Lx = LxLm;
     Ry = RyC; Ly = LyC;
     Neck= NeckC;
-
-    string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
-    string PiADDR = "10.0.0.10";
 
     //SETUP TCP COMMS
     int PORT=12345;
@@ -75,9 +70,8 @@ int main(int argc, char *argv[])
     Ry = RyC; Ly = LyC;
     Neck= NeckC;
 
-    const Mat OWLresult;// correlation result passed back from matchtemplate
-    cv::Mat Frame;
-    Mat Left, Right; // images
+
+
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
     while (inLOOP){
@@ -96,24 +90,10 @@ int main(int argc, char *argv[])
         }
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
-            if (!cap.read(Frame))
-            {
-                cout  << "Could not open the input video: " << source << endl;
-                //         break;
-            }
-            Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-            //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-            Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
-            Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
-            Mat RightCopy;
-            Right.copyTo(RightCopy);
-            rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 ); // draw white rect
-            imshow("Left",Left);imshow("Right", RightCopy);
 
-            cv::setMouseCallback("Right", mouseEvent, 0);
+            // PLACE CAMERA CODE HERE
+            int key = camera_loop(&cap);
 
-            int key = waitKey(30); // this is a pause long enough to allow a stable photo to be taken.
             printf("%d",key);//mrs added 01/02/2017 to diagnose arrow keys returned code ***************************************************
             switch (key){
             case 'w': //up
