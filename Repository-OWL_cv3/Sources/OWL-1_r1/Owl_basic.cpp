@@ -140,10 +140,13 @@ int main(int argc, char *argv[])
             OwlCorrel OWL;
             OWL = Owl_matchTemplate( Right,  Left, OWLtempl, target);
 
-            Mat RightCopy;
-            Right.copyTo(RightCopy);
-            rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 );
+            Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
+
+            // Left frame drawings
             rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+            cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
+
+            // Correlation window drawings
             rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
             imshow("Correl",OWL.Result );
             imshow("Left", Left);
@@ -154,8 +157,8 @@ int main(int argc, char *argv[])
             // Only for left eye at the moment
             //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
             //======== try altering KPx & KPy to see the settling time/overshoot
-            double KPx=0.5; // track rate X
-            double KPy=0.5; // track rate Y
+            double KPx=0.05; // track rate X
+            double KPy=0.05; // track rate Y
 
             double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
             double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
