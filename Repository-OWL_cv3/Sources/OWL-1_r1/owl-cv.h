@@ -59,25 +59,25 @@ return (OWL);
 
 int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 
-int count=20;
-cv::Mat Frame;
+    int count=20;
+    cv::Mat Frame;
     for (int i=0;i<count;i++){
-    if (!cap.read(Frame))
-    {
-        return(-1);
+        if (!cap.read(Frame))
+        {
+            return(-1);
+        }
+        //Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
+        //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
+        // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
+        cv::Mat Right= Frame( Rect(0, 0, 640, 480)); // using a rectangle
+        cv::Mat Left=  Frame( Rect(640, 0, 640, 480)); // using a rectanglecv::imwrite(Folder + "left" + count + "jpg", Left);
+        string fnameR(Folder + "right" + to_string(i) + ".jpg");
+        string fnameL=(Folder + "left" +  to_string(i) + ".jpg");
+        cv::imwrite(fnameL, Left);
+        cv::imwrite(fnameR, Right);
+        cout << "Saved " << i << " stereo pair" << Folder <<endl;
+        cv::waitKey(0);
     }
-    //Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-    //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-    // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-    cv::Mat Right= Frame( Rect(0, 0, 640, 480)); // using a rectangle
-    cv::Mat Left=  Frame( Rect(640, 0, 640, 480)); // using a rectanglecv::imwrite(Folder + "left" + count + "jpg", Left);
-    string fnameR(Folder + "right" + to_string(i) + ".jpg");
-    string fnameL=(Folder + "left" +  to_string(i) + ".jpg");
-    cv::imwrite(fnameL, Left);
-    cv::imwrite(fnameR, Right);
-    cout << "Saved " << i << " stereo pair" << Folder <<endl;
-    cv::waitKey(0);
-}
     cout << "Just saved 10 stereo pairs" << Folder <<endl;
     return(0);
 }
@@ -105,7 +105,9 @@ const std::string left_eye  = "Left_Eye";
 const std::string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
 const std::string PiADDR = "10.0.0.10";
 
+static bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
+static bool start_cross_correlation = false; // determines if cross-correlation is to be performed on the target ROI or not.
 
 /*---- Handler method that reacts to user selecting pixel in interactive window ----*/
 void mouseEvent(int evt, int x, int y, int, void*)
@@ -119,6 +121,18 @@ void mouseEvent(int evt, int x, int y, int, void*)
         target_pxl = cv::Point(x,y);
 
         std::cout << "Pixel (x,y): " << target_pxl.x << ", " << target_pxl.y << "\n";
+
+        /* Phil's code for starting cross-correlation */
+
+        target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64); // update target to anchor at selected pixel locatoin
+
+        OWLtempl= Right(target);
+        imshow("templ",OWLtempl);
+        waitKey(1);
+
+        /* Start tracking the ROI at the selected anchor using cross-correlation */
+        start_cross_correlation = true;
+
     }
 }
 
