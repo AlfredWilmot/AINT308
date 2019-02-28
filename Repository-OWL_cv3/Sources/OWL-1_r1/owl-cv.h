@@ -159,7 +159,8 @@ int camera_loop(cv::VideoCapture *vid_cap)
     /* Draw stuff onto img, then show iamges */
     target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64);
     cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
-    if(_mouse_clk) cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
+    if(_mouse_clk)cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
+
     imshow(left_eye, Left);imshow(right_eye, RightCopy);
 
     /* Only set-up call-backs once the window is established */

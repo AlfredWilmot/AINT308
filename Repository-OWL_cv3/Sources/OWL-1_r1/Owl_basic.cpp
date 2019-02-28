@@ -136,23 +136,26 @@ int main(int argc, char *argv[])
 
             camera_loop(&cap);
 
+            /* Generate correlation template from left camera */
             OwlCorrel OWL;
             OWL = Owl_matchTemplate( Right,  Left, OWLtempl, target);
-            /// Show me what you got
+
             Mat RightCopy;
             Right.copyTo(RightCopy);
             rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 );
             rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
             rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
             imshow("Correl",OWL.Result );
-            if (waitKey(10)== 27) inLOOP=false;
-            //// P control
+            imshow("Left", Left);
+
+
+            /// P control for Left servo **(repeat for right servo)**
 
             // Only for left eye at the moment
             //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
             //======== try altering KPx & KPy to see the settling time/overshoot
-            double KPx=0.05; // track rate X
-            double KPy=0.05; // track rate Y
+            double KPx=0.5; // track rate X
+            double KPy=0.5; // track rate Y
 
             double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
             double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
@@ -163,6 +166,10 @@ int main(int argc, char *argv[])
             double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
             double LyOld=Ly;
             Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
+
+
+
+
 
             // move to get minimise distance from centre of both images, ie verge in to targe
             // move servos to position
