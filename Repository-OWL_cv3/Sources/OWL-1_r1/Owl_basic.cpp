@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
 
-            // PLACE CAMERA CODE HERE
+            // Capture frames and return any key values pressed.
             int key = camera_loop(&cap);
 
             printf("%d",key);//mrs added 01/02/2017 to diagnose arrow keys returned code ***************************************************
@@ -113,6 +113,9 @@ int main(int argc, char *argv[])
                 captureCalibPair(cap,myCalibrations, calibCounter);
                 calibCounter++;
                 break;
+            case 27: //ESC
+                inLOOP = false;
+                break;
             default:
                 key=key;
                 //nothing at present
@@ -124,41 +127,40 @@ int main(int argc, char *argv[])
             CMD = CMDstream.str();
             RxPacket= OwlSendPacket (u_sock, CMD.c_str());
 
-        } // END cursor control loop
-
-        // close windows down
-        destroyAllWindows();
 
         //============= Normalised Cross Correlation ==========================
         // right is the template, just captured manually
-        inLOOP=true; // run through the loop until decided to exit
-        while (inLOOP) {
-            if (!cap.read(Frame))
-            {
-                cout  << "Could not open the input video: " << source << endl;
-                break;
-            }
-            Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-            //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-            Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
-            Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
+
+        if (start_cross_correlation) {
+
+//            Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
+//            //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
+//            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
+//            Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
+//            Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
 
             //Rect target= Rect(320-32, 240-32, 64, 64); //defined in owl-cv.h
-            //Mat OWLtempl(Right, target);
+            Mat OWLtempl(Right, target);
+
+            camera_loop(&cap);
+
+            /* Generate correlation template from left camera */
             OwlCorrel OWL;
             OWL = Owl_matchTemplate( Right,  Left, OWLtempl, target);
-            /// Show me what you got
-            Mat RightCopy;
-            Right.copyTo(RightCopy);
-            rectangle( RightCopy, target, Scalar::all(255), 2, 8, 0 );
+
+            Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
+
+            // Left frame drawings
             rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+            cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
+
+            // Correlation window drawings
             rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-            imshow("Owl-L", Left);
-            imshow("Owl-R", RightCopy);
             imshow("Correl",OWL.Result );
-            if (waitKey(10)== 27) inLOOP=false;
-            //// P control
+            imshow("Left", Left);
+
+
+            /// P control for Left servo **(repeat for right servo)**
 
             // Only for left eye at the moment
             //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
@@ -176,12 +178,18 @@ int main(int argc, char *argv[])
             double LyOld=Ly;
             Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
 
+
+
+
+
             // move to get minimise distance from centre of both images, ie verge in to targe
             // move servos to position
             CMDstream.str("");
             CMDstream.clear();
             CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
             CMD = CMDstream.str();
+        }
+
 #ifdef _WIN32
             RxPacket= OwlSendPacket (u_sock, CMD.c_str());
 #else
