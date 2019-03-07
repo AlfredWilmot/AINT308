@@ -133,20 +133,13 @@ int main(int argc, char *argv[])
 
         if (start_cross_correlation) {
 
-//            Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-//            //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-//            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-//            Left= FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
-//            Right=FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
-
-            //Rect target= Rect(320-32, 240-32, 64, 64); //defined in owl-cv.h
             Mat OWLtempl(Right, target);
 
             camera_loop(&cap);
 
             /* Generate correlation template from left camera */
             OwlCorrel OWL;
-            OWL = Owl_matchTemplate( Right,  Left, OWLtempl, target);
+            OWL = Owl_matchTemplate(Left, OWLtempl);
 
             Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
 

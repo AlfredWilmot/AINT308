@@ -28,33 +28,32 @@ Mat OWLtempl; // used in correlation
 
                              // drawn over whatever is in the centre of the FOV, to act as a template
 
-struct OwlCorrel Owl_matchTemplate(Mat Right, Mat Left, Mat templ, Rect target){
+struct OwlCorrel Owl_matchTemplate(Mat Left, Mat templ){
 
+    /// Create the result matrix
+    int result_cols =  Left.cols - templ.cols + 1;
+    int result_rows = Left.rows - templ.rows + 1;
 
-/// Create the result matrix
-int result_cols =  Left.cols - templ.cols + 1;
-int result_rows = Left.rows - templ.rows + 1;
+    static OwlCorrel OWL;
+    OWL.Result.create(result_rows, result_cols,  CV_32FC1 );
 
-static OwlCorrel OWL;
-OWL.Result.create(result_rows, result_cols,  CV_32FC1 );
+    /// Do the Matching and Normalize
+    int match_method = 5; /// CV_TM_CCOEFF_NORMED;
+    matchTemplate( Left, templ, OWL.Result, match_method );
+    /// Localizing the best match with minMaxLoc
+    double minVal; double maxVal; Point minLoc; Point maxLoc;
+    Point matchLoc;
 
-/// Do the Matching and Normalize
-int match_method = 5; /// CV_TM_CCOEFF_NORMED;
-matchTemplate( Left, templ, OWL.Result, match_method );
-/// Localizing the best match with minMaxLoc
-double minVal; double maxVal; Point minLoc; Point maxLoc;
-Point matchLoc;
+    minMaxLoc( OWL.Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
-minMaxLoc( OWL.Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+    /// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
+    //if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED ) //CV3
+    if( match_method  == cv::TM_SQDIFF || match_method == cv::TM_SQDIFF_NORMED ) //CV4
+    { OWL.Match = minLoc; }
+    else
+    { OWL.Match = maxLoc; }
 
-/// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
-//if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED ) //CV3
-if( match_method  == cv::TM_SQDIFF || match_method == cv::TM_SQDIFF_NORMED ) //CV4
-{ OWL.Match = minLoc; }
-else
-{ OWL.Match = maxLoc; }
-
-return (OWL);
+    return (OWL);
 }
 
 int OwlCalCapture(cv::VideoCapture &cap, string Folder){
