@@ -124,8 +124,6 @@ int main(int argc, char *argv[])
 
             if (start_cross_correlation) {
 
-                Mat OWLtempl(Right, target);
-
                 camera_loop(&cap);
 
                 /* Generate correlation template from left camera */
