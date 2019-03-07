@@ -195,6 +195,25 @@ int camera_loop(cv::VideoCapture *vid_cap)
     cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
     if(_mouse_clk)cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
 
+
+
+    if (start_cross_correlation)
+    {
+
+        /* Generate correlation template from left camera */
+        OWL_left_eye = Owl_matchTemplate(&Left, &OWLtempl, &OWL_left_eye);
+
+        Point mid_target = Point(OWL_left_eye.Match.x + 32, OWL_left_eye.Match.y + 32);
+
+        // Left frame drawings
+        rectangle( Left, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
+
+        // Correlation window drawings
+        rectangle( OWL_left_eye.Result, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        imshow("Correl",OWL_left_eye.Result );
+    }
+
     imshow(left_eye, Left);imshow(right_eye, RightCopy);
 
     /* Only set-up call-backs once the window is established */
