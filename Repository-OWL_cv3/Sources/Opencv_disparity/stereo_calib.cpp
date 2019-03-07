@@ -30,6 +30,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
+//#include "owl-cv.h"
 
 #include <vector>
 #include <string>
@@ -42,6 +43,9 @@
 
 using namespace cv;
 using namespace std;
+
+const std::string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
+
 
 static int print_help()
 {
@@ -58,11 +62,40 @@ static int print_help()
     return 0;
 }
 
+void calibrateLeftEye(){
+
+    Mat Frame, drawToFrame;
+    Mat camera;
+
+VideoCapture cap (source);              // Open input
+        if (!cap.isOpened())
+        {
+            cout  << "Could not open the input video: " << source << endl;
+            return;
+        }
+
+        int count=20;
+            for (int i=0;i<count;i++){
+            if (!cap.read(Frame))
+            {
+                return;
+            }
+
+            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
+            cv::Mat Right = Frame( Rect(0, 0, 640, 480)); // using a rectangle
+            cv::Mat Left =  Frame( Rect(640, 0, 640, 480)); // using a rectanglecv::imwrite(Folder + "left" + count + "jpg", Left);
+
+            cv::waitKey(0);
+        }
+}
 
 static void
 StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, bool displayCorners = false, bool useCalibrated=true, bool showRectified=true)
 {
-    if( imagelist.size() % 2 != 0 )
+    //imagelist is locations of steropairs from stereo_calib.xml file
+    //boardsize is 9x6, squareSize is 1
+
+    if( imagelist.size() % 2 != 0 ) //checks for if there is a complete stereo pairs
     {
         cout << "Error: the image list contains odd (non-even) number of elements\n";
         return;
@@ -71,10 +104,12 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
     const int maxScale = 2;
     // ARRAY AND VECTOR STORAGE:
 
-    vector<vector<Point2f> > imagePoints[2];
+    vector<vector<Point2f> > imagePoints[2]; //array of xy for both stereo pairs [1]
     vector<vector<Point3f> > objectPoints;
     Size imageSize;
 
+    //init i, j, k. nimages = 9 since there is 18 pairs
+    //i is the counter number of images. j is the number of pairs, k which one of the pair, ie left1 or right1
     int i, j, k, nimages = (int)imagelist.size()/2;
 
     imagePoints[0].resize(nimages);
@@ -85,10 +120,10 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
     {
         for( k = 0; k < 2; k++ )
         {
-            const string& filename = imagelist[i*2+k];
-            Mat img = imread(filename, IMREAD_GRAYSCALE );
+            const string& filename = imagelist[i*2+k]; //takes file and adds it to the imagelist array to identify as left or right
+            Mat img = imread(filename, IMREAD_GRAYSCALE ); //New matrix and opens the file in grayscale
             if(img.empty())
-                break;
+                break; // break if theres no image
             if( imageSize == Size() )
                 imageSize = img.size();
             else if( img.size() != imageSize )
@@ -96,13 +131,13 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                 cout << "The image " << filename << " has the size different from the first image size. Skipping the pair\n";
                 break;
             }
-            bool found = false;
-            vector<Point2f>& corners = imagePoints[k][j];
+            bool found = false;                                 //resets findChessboardCorners
+            vector<Point2f>& corners = imagePoints[k][j];       //creates Point2f array for corner positions
             for( int scale = 1; scale <= maxScale; scale++ )
             {
                 Mat timg;
                 if( scale == 1 )
-                    timg = img;
+                    timg = img; //copies image
                 else
                     resize(img, timg, Size(), scale, scale);
                 found = findChessboardCorners(timg, boardSize, corners,
@@ -166,7 +201,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
 
     cout << "Running stereo calibration ...\n";
 
-    Mat cameraMatrix[2], distCoeffs[2];
+    Mat cameraMatrix[2], distCoeffs[2]; //init cam matrix and distance coefficients
     cameraMatrix[0] = initCameraMatrix2D(objectPoints,imagePoints[0],imageSize,0);
     cameraMatrix[1] = initCameraMatrix2D(objectPoints,imagePoints[1],imageSize,0);
     Mat R, T, E, F;

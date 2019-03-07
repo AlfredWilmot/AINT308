@@ -54,28 +54,19 @@ int main(int argc, char *argv[])
     string CMD;
     int N;
 
-    Rx = RxLm; Lx = LxLm;
-    Ry = RyC; Ly = LyC;
-    Neck= NeckC;
-
     //SETUP TCP COMMS
     int PORT=12345;
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
-    /***********************
- * LOOP continuously for testing
- */
-    // RyC=RyC-40; LyC=LyC+40; // offset for cross on card
-    Rx = RxC; Lx = LxC;
-    Ry = RyC; Ly = LyC;
+    //centre eyes and neck
+    Rx = RxC; Lx = 1470; // LxC;
+    Ry = RyC; Ly = 1660; //LyC;
     Neck= NeckC;
-
-
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
     while (inLOOP){
-        // move servos to centre of field
+        // move servos to centre of field once
         CMDstream.str("");
         CMDstream.clear();
         CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
@@ -88,6 +79,10 @@ int main(int argc, char *argv[])
             cout  << "Could not open the input video: " << source << endl;
             return -1;
         }
+
+        int calibCounter = 0;
+        string myCalibrations = "../../Data/mySavedImages/Test/"; //location of the folder to store calibrating images
+
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
 
@@ -114,6 +109,10 @@ int main(int argc, char *argv[])
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
                 break; // left
+            case 'j': // take image for calibration
+                captureCalibPair(cap,myCalibrations, calibCounter);
+                calibCounter++;
+                break;
             default:
                 key=key;
                 //nothing at present
