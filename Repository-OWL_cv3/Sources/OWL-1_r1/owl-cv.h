@@ -30,31 +30,31 @@ Mat OWLtempl; // used in correlation
 static OwlCorrel OWL_left_eye;
 static OwlCorrel OWL_right_eye;
 
-struct OwlCorrel Owl_matchTemplate(Mat *Left, Mat *templ, OwlCorrel *OWL_eye){
+struct OwlCorrel Owl_matchTemplate(Mat *eye_frame, Mat *templ, OwlCorrel *matched_ROI){
 
     /// Create the result matrix
-    int result_cols =  Left->cols - templ->cols + 1;
-    int result_rows = Left->rows - templ->rows + 1;
+    int result_cols =  eye_frame->cols - templ->cols + 1;
+    int result_rows = eye_frame->rows - templ->rows + 1;
 
-    OWL_eye->Result.create(result_rows, result_cols,  CV_32FC1 );
+    matched_ROI->Result.create(result_rows, result_cols,  CV_32FC1 );
 
     /// Do the Matching and Normalize
     int match_method = 5; /// CV_TM_CCOEFF_NORMED;
-    matchTemplate( *Left, *templ, OWL_eye->Result, match_method );
+    matchTemplate( *eye_frame, *templ, matched_ROI->Result, match_method );
     /// Localizing the best match with minMaxLoc
     double minVal; double maxVal; Point minLoc; Point maxLoc;
     Point matchLoc;
 
-    minMaxLoc( OWL_eye->Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+    minMaxLoc( matched_ROI->Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
     /// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
     //if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED ) //CV3
     if( match_method  == cv::TM_SQDIFF || match_method == cv::TM_SQDIFF_NORMED ) //CV4
-    { OWL_eye->Match = minLoc; }
+    { matched_ROI->Match = minLoc; }
     else
-    { OWL_eye->Match = maxLoc; }
+    { matched_ROI->Match = maxLoc; }
 
-    return (*OWL_eye);
+    return (*matched_ROI);
 }
 
 int OwlCalCapture(cv::VideoCapture &cap, string Folder){
