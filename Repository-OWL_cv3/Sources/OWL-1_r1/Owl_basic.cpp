@@ -47,7 +47,7 @@ using namespace std;
 using namespace cv;
 
 
-void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *);
+void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *, bool);
 
 
 int main(int argc, char *argv[])
@@ -138,7 +138,8 @@ int main(int argc, char *argv[])
                 /// P control for the servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
 
-                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly);
+                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false);
+                servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true);
             }
 
             /* Update servo position */
@@ -167,7 +168,7 @@ int main(int argc, char *argv[])
 
 
 
-void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y)
+void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y, bool is_right_eye)
 {
 
     double tmp = 0;
@@ -178,7 +179,24 @@ void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlC
     *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
 
     double LyScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
-    double Yoff= (240+(owl_eye->Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ;  // compare to centre of image
-    tmp = *axis_y;
-    *axis_y=static_cast<int>(tmp - Yoff);                                   // roughly 300 servo offset = 320 [pixel offset]
+
+    double Yoff = 0;
+
+    if(is_right_eye)
+    {
+        Yoff = 240-(owl_eye->Match.y - OWLtempl.rows/2)/LyScaleV ;  // compare to centre of image
+        tmp = *axis_y;
+        *axis_y=static_cast<int>(tmp + Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
+    }
+    else
+    {
+        Yoff = 240+(owl_eye->Match.y + OWLtempl.rows/2)/LyScaleV ;
+        tmp = *axis_y;
+        *axis_y=static_cast<int>(tmp - Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
+    }
+
+
+
+
+
 }
