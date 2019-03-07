@@ -132,8 +132,6 @@ int main(int argc, char *argv[])
 
             if (start_cross_correlation) {
 
-                camera_loop(&cap);
-
                 /* Generate correlation template from left camera */
                 OwlCorrel OWL;
                 OWL = Owl_matchTemplate(Left, OWLtempl);
