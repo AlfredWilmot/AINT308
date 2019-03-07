@@ -89,13 +89,12 @@ int main(int argc, char *argv[])
             // Capture frames and return any key values pressed.
             int key = camera_loop(&cap);
 
-            printf("%d",key);//mrs added 01/02/2017 to diagnose arrow keys returned code ***************************************************
             switch (key){
             case 'w': //up
-                Ry=Ry+5;Ly=Ly-5; // was Ly=+5 Changed BILL
+                Ry=Ry+5;Ly=Ly-5;
                 break;
             case 's'://down
-                Ry=Ry-5;Ly=Ly+5; // was Ly=-5 BILL
+                Ry=Ry-5;Ly=Ly+5;
                 break;
             case 'a'://left
                 Rx=Rx-5;Lx=Lx-5;
@@ -103,12 +102,12 @@ int main(int argc, char *argv[])
             case 'd'://right
                 Rx=Rx+5;Lx=Lx+5;
                 break;
-            case 'c': // lowercase 'c'
+            case 'c':
                 OWLtempl= Right(target);
                 imshow("templ",OWLtempl);
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
-                break; // left
+                break;
             case 'j': // take image for calibration
                 captureCalibPair(cap,myCalibrations, calibCounter);
                 calibCounter++;
@@ -118,70 +117,60 @@ int main(int argc, char *argv[])
                 break;
             default:
                 key=key;
-                //nothing at present
             }
 
-            CMDstream.str("");
-            CMDstream.clear();
-            CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
-            CMD = CMDstream.str();
-            RxPacket= OwlSendPacket (u_sock, CMD.c_str());
+            //============= Normalised Cross Correlation ==========================
+            // right is the template, just captured manually
+
+            if (start_cross_correlation) {
+
+                Mat OWLtempl(Right, target);
+
+                camera_loop(&cap);
+
+                /* Generate correlation template from left camera */
+                OwlCorrel OWL;
+                OWL = Owl_matchTemplate(Left, OWLtempl);
+
+                Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
+
+                // Left frame drawings
+                rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+                cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
+
+                // Correlation window drawings
+                rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+                imshow("Correl",OWL.Result );
+                imshow("Left", Left);
+
+                OWLtempl= Right(target);
+                imshow("templ",OWLtempl);
+
+                /// P control for Left servo
+                //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
+                //======== try altering KPx & KPy to see the settling time/overshoot
+                double KPx=0.05; // track rate X
+                double KPy=0.05; // track rate Y
+
+                double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
+                double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
+                double LxOld=Lx;
+                Lx=static_cast<int>(LxOld-Xoff*KPx); // roughly 300 servo offset = 320 [pixel offset]
+
+                double LyScaleV = LyRangeV/static_cast<double>(480); //PWM range /pixel range
+                double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
+                double LyOld=Ly;
+                Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
+            }
 
 
-        //============= Normalised Cross Correlation ==========================
-        // right is the template, just captured manually
+                // move to get minimise distance from centre of both images, ie verge in to target
+                // move servos to position
+                CMDstream.str("");
+                CMDstream.clear();
+                CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+                CMD = CMDstream.str();
 
-        if (start_cross_correlation) {
-
-            Mat OWLtempl(Right, target);
-
-            camera_loop(&cap);
-
-            /* Generate correlation template from left camera */
-            OwlCorrel OWL;
-            OWL = Owl_matchTemplate(Left, OWLtempl);
-
-            Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
-
-            // Left frame drawings
-            rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-            cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
-
-            // Correlation window drawings
-            rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-            imshow("Correl",OWL.Result );
-            imshow("Left", Left);
-
-
-            /// P control for Left servo **(repeat for right servo)**
-
-            // Only for left eye at the moment
-            //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
-            //======== try altering KPx & KPy to see the settling time/overshoot
-            double KPx=0.05; // track rate X
-            double KPy=0.05; // track rate Y
-
-            double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
-            double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
-            double LxOld=Lx;
-            Lx=static_cast<int>(LxOld-Xoff*KPx); // roughly 300 servo offset = 320 [pixel offset]
-
-            double LyScaleV = LyRangeV/static_cast<double>(480); //PWM range /pixel range
-            double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
-            double LyOld=Ly;
-            Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
-
-
-
-
-
-            // move to get minimise distance from centre of both images, ie verge in to targe
-            // move servos to position
-            CMDstream.str("");
-            CMDstream.clear();
-            CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
-            CMD = CMDstream.str();
-        }
 
 #ifdef _WIN32
             RxPacket= OwlSendPacket (u_sock, CMD.c_str());
