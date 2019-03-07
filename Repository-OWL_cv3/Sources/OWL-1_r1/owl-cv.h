@@ -79,7 +79,6 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
         cv::waitKey(0);
     }
 
-
     cout << "Just saved 10 stereo pairs" << Folder <<endl;
     return(0);
 }
@@ -89,8 +88,11 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 /*-- Camera calibration --*/
 /*------------------------*/
 
+//calibration vars
+static int calibCounter = 0;
+const string myCalibrations = "../../Data/mySavedImages/Test"; //location of the folder to store calibrating images
 
-
+//Take the
 int captureCalibPair(cv::VideoCapture &cap, string Folder, int calibCounter){
 
 cv::Mat Frame; // create matrix for the camera feed
@@ -108,16 +110,12 @@ cv::Mat Frame; // create matrix for the camera feed
     string fnameL=(Folder + "left" +  to_string(calibCounter) + ".jpg");
     cv::imwrite(fnameL, Left);
     cv::imwrite(fnameR, Right);
-    cout << "Saved " << calibCounter << " stereo pair" << Folder <<endl;
+    cout << "Saved " << calibCounter + 1 << " stereo pair" << Folder <<endl;
     cv::waitKey(100);
 
     calibCounter++;
 
-    //return(0);
 }
-
-
-
 
 
 /*--------------------*/

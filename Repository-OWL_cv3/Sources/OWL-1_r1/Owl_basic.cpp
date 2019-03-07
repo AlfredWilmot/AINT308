@@ -80,9 +80,6 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        int calibCounter = 0;
-        string myCalibrations = "../../Data/mySavedImages/Test/"; //location of the folder to store calibrating images
-
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
 
@@ -109,9 +106,14 @@ int main(int argc, char *argv[])
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
                 break; // left
-            case 'j': // take image for calibration
-                captureCalibPair(cap,myCalibrations, calibCounter);
-                calibCounter++;
+            case 'j': // take image for calibration - max = 20
+                if(calibCounter == 20){
+                    cout << "20 pairs captured already" << endl;
+                }else
+                {
+                    captureCalibPair(cap, myCalibrations, calibCounter);
+                    calibCounter++;
+                }
                 break;
             case 27: //ESC
                 inLOOP = false;
@@ -177,10 +179,6 @@ int main(int argc, char *argv[])
             double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
             double LyOld=Ly;
             Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
-
-
-
-
 
             // move to get minimise distance from centre of both images, ie verge in to targe
             // move servos to position
