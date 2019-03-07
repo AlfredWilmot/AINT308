@@ -66,21 +66,25 @@ int main(int argc, char *argv[])
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
     while (inLOOP){
-        // move servos to centre of field once
+
+        /*----------------------------------------------------------------------*/
+        /* DO NOT REMOVE THIS BLOCK, OTHERWISE WILL BREAK */
+        /*----------------------------------------------------------------------*/
         CMDstream.str("");
         CMDstream.clear();
         CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
         CMD = CMDstream.str();
         string RxPacket= OwlSendPacket (u_sock, CMD.c_str());
+        /*----------------------------------------------------------------------*/
 
-        VideoCapture cap (source);              // Open input
+        /* Attempt to open video-feed */
+        VideoCapture cap (source);
         if (!cap.isOpened())
         {
             cout  << "Could not open the input video: " << source << endl;
             return -1;
         }
 
-        //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
 
             // Capture frames and return any key values pressed.
@@ -154,7 +158,6 @@ int main(int argc, char *argv[])
                 double KPx=0.05; // track rate X
                 double KPy=0.05; // track rate Y
 
-<<<<<<< HEAD
                 double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
                 double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
                 double LxOld=Lx;
@@ -166,23 +169,12 @@ int main(int argc, char *argv[])
                 Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
             }
 
-
-                // move to get minimise distance from centre of both images, ie verge in to target
-                // move servos to position
-                CMDstream.str("");
-                CMDstream.clear();
-                CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
-                CMD = CMDstream.str();
-
-=======
-            // move to get minimise distance from centre of both images, ie verge in to targe
-            // move servos to position
+            /* Update servo position */
             CMDstream.str("");
             CMDstream.clear();
             CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
             CMD = CMDstream.str();
-        }
->>>>>>> ca8ed3564e9a6559b0acc42235dc5e2785412675
+
 
 #ifdef _WIN32
             RxPacket= OwlSendPacket (u_sock, CMD.c_str());
