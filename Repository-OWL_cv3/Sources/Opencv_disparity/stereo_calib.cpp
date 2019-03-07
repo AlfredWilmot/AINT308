@@ -93,7 +93,7 @@ static void
 StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, bool displayCorners = false, bool useCalibrated=true, bool showRectified=true)
 {
     //imagelist is locations of steropairs from stereo_calib.xml file
-    //boardsize is 9x6, squareSize is 1
+    //boardsize is 9x6, squareSize is
 
     if( imagelist.size() % 2 != 0 ) //checks for if there is a complete stereo pairs
     {

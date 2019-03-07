@@ -80,9 +80,6 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        int calibCounter = 0;
-        string myCalibrations = "../../Data/mySavedImages/Test/"; //location of the folder to store calibrating images
-
         //Rect region_of_interest = Rect(x, y, w, h);
         while (inLOOP){
 
@@ -108,10 +105,17 @@ int main(int argc, char *argv[])
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
                 break;
-            case 'j': // take image for calibration
-                captureCalibPair(cap,myCalibrations, calibCounter);
-                calibCounter++;
+
+            case 'j': // take image for calibration - max = 20
+                if(calibCounter == 20){
+                    cout << "20 pairs captured already" << endl;
+                }else
+                {
+                    captureCalibPair(cap, myCalibrations, calibCounter);
+                    calibCounter++;
+                }
                 break;
+
             case 27: //ESC
                 inLOOP = false;
                 break;
@@ -150,6 +154,7 @@ int main(int argc, char *argv[])
                 double KPx=0.05; // track rate X
                 double KPy=0.05; // track rate Y
 
+<<<<<<< HEAD
                 double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
                 double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
                 double LxOld=Lx;
@@ -169,6 +174,15 @@ int main(int argc, char *argv[])
                 CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
                 CMD = CMDstream.str();
 
+=======
+            // move to get minimise distance from centre of both images, ie verge in to targe
+            // move servos to position
+            CMDstream.str("");
+            CMDstream.clear();
+            CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
+            CMD = CMDstream.str();
+        }
+>>>>>>> ca8ed3564e9a6559b0acc42235dc5e2785412675
 
 #ifdef _WIN32
             RxPacket= OwlSendPacket (u_sock, CMD.c_str());
