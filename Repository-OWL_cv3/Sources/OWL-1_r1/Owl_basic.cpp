@@ -47,6 +47,9 @@ using namespace std;
 using namespace cv;
 
 
+void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *);
+
+
 int main(int argc, char *argv[])
 {
     char receivedStr[1024];
@@ -132,21 +135,10 @@ int main(int argc, char *argv[])
 
             if (start_cross_correlation) {
 
-                /// P control for Left servo
+                /// P control for the servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
-                //======== try altering KPx & KPy to see the settling time/overshoot
-                double KPx=0.05; // track rate X
-                double KPy=0.05; // track rate Y
 
-                double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
-                double Xoff= 320-(OWL_left_eye.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
-                double LxOld=Lx;
-                Lx=static_cast<int>(LxOld-Xoff*KPx); // roughly 300 servo offset = 320 [pixel offset]
-
-                double LyScaleV = LyRangeV/static_cast<double>(480); //PWM range /pixel range
-                double Yoff= (240+(OWL_left_eye.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
-                double LyOld=Ly;
-                Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
+                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly);
             }
 
             /* Update servo position */
@@ -171,4 +163,22 @@ int main(int argc, char *argv[])
     close(clientSock);
 #endif
     exit(0); // exit here for servo testing only
+}
+
+
+
+void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y)
+{
+
+    double tmp = 0;
+
+    double LxScaleV = *range_x/static_cast<double>(640);                    //PWM range /pixel range
+    double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/LxScaleV ;        // compare to centre of image
+    tmp = *axis_x;
+    *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
+
+    double LyScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
+    double Yoff= (240+(owl_eye->Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ;  // compare to centre of image
+    tmp = *axis_y;
+    *axis_y=static_cast<int>(tmp - Yoff);                                   // roughly 300 servo offset = 320 [pixel offset]
 }
