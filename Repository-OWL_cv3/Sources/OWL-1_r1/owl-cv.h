@@ -187,34 +187,44 @@ int camera_loop(cv::VideoCapture *vid_cap)
     // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
     Left= FrameFlpd( cv::Rect(0, 0, 640, 480)); // using a rectangle
     Right=FrameFlpd( cv::Rect(640, 0, 640, 480)); // using a rectangle
+
     cv::Mat RightCopy;
     Right.copyTo(RightCopy);
 
-    /* Draw stuff onto img, then show images */
-    target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64);
-    cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
-    if(_mouse_clk)cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
+    cv::Mat LeftCopy;
+    Left.copyTo(LeftCopy);
 
-
-
+    /* Image processing and display when performing cross-correlation */
     if (start_cross_correlation)
     {
 
         /* Generate correlation template from left camera */
-        OWL_left_eye = Owl_matchTemplate(&Left, &OWLtempl, &OWL_left_eye);
+        OWL_left_eye  = Owl_matchTemplate(&LeftCopy, &OWLtempl, &OWL_left_eye);
+        OWL_right_eye = Owl_matchTemplate(&RightCopy, &OWLtempl, &OWL_right_eye);
 
-        Point mid_target = Point(OWL_left_eye.Match.x + 32, OWL_left_eye.Match.y + 32);
+        /* Identify midpoints of correlated targets in either camera feed */
+        Point left_mid_target  = Point(OWL_left_eye.Match.x + 32, OWL_left_eye.Match.y + 32);
+        Point right_mid_target = Point(OWL_right_eye.Match.x + 32, OWL_right_eye.Match.y + 32);
 
         // Left frame drawings
-        rectangle( Left, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-        cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
+        rectangle( LeftCopy, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        cv::line(LeftCopy, mid_pxl, left_mid_target, cv::Scalar(0, 255, 0), 3);
+
+        // right frame drawings
+        rectangle( RightCopy, OWL_right_eye.Match, Point( OWL_right_eye.Match.x + OWLtempl.cols , OWL_right_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        cv::line(RightCopy, mid_pxl, right_mid_target, cv::Scalar(0, 255, 0), 3);
 
         // Correlation window drawings
         rectangle( OWL_left_eye.Result, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
         imshow("Correl",OWL_left_eye.Result );
+
+
+        /* Update template on every camera-loop */
+//        OWLtempl= Right(target);
+//        imshow("templ",OWLtempl);
     }
 
-    imshow(left_eye, Left);imshow(right_eye, RightCopy);
+    imshow(left_eye, LeftCopy);imshow(right_eye, RightCopy);
 
     /* Only set-up call-backs once the window is established */
     if(!camera_setup_done)
