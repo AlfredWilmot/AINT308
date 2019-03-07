@@ -89,7 +89,7 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 /*------------------------*/
 
 //calibration vars
-static int calibCounter = 0;
+static int calibCounter = 1;
 const string myCalibrations = "../../Data/mySavedImages/Test"; //location of the folder to store calibrating images
 
 //Take the

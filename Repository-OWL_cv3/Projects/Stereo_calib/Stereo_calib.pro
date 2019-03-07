@@ -33,4 +33,9 @@ SOURCES += \
     ../../Sources/Opencv_disparity/stereo_calib.cpp
 
 DISTFILES += \
-    ../../Data/stereo_calib.xml
+    ../../Data/stereo_calib.xml \
+    ../../Data/stereo_calib _2.xml \
+    ../../Data/stereo_calib _2.xml \
+    ../../Data/stereo_calib _2.xml \
+    ../../Data/stereo_calib _2.xml \
+    ../../Data/stereo_calib _2.xml

@@ -30,7 +30,6 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
-//#include "owl-cv.h"
 
 #include <vector>
 #include <string>
@@ -60,33 +59,6 @@ static int print_help()
             " rectified results along with the computed disparity images.   \n" << endl;
     cout << "Usage:\n ./stereo_calib -w=<board_width default=9> -h=<board_height default=6> -s=<square_size default=1.0> <image list XML/YML file default=../data/stereo_calib.xml>\n" << endl;
     return 0;
-}
-
-void calibrateLeftEye(){
-
-    Mat Frame, drawToFrame;
-    Mat camera;
-
-VideoCapture cap (source);              // Open input
-        if (!cap.isOpened())
-        {
-            cout  << "Could not open the input video: " << source << endl;
-            return;
-        }
-
-        int count=20;
-            for (int i=0;i<count;i++){
-            if (!cap.read(Frame))
-            {
-                return;
-            }
-
-            // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-            cv::Mat Right = Frame( Rect(0, 0, 640, 480)); // using a rectangle
-            cv::Mat Left =  Frame( Rect(640, 0, 640, 480)); // using a rectanglecv::imwrite(Folder + "left" + count + "jpg", Left);
-
-            cv::waitKey(0);
-        }
 }
 
 static void
