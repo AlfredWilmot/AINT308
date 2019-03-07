@@ -133,18 +133,18 @@ int main(int argc, char *argv[])
             if (start_cross_correlation) {
 
                 /* Generate correlation template from left camera */
-                OwlCorrel OWL;
-                OWL = Owl_matchTemplate(Left, OWLtempl);
+                OwlCorrel OWL_left_eye;
+                OWL_left_eye = Owl_matchTemplate(&Left, &OWLtempl, &OWL_left_eye);
 
-                Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
+                Point mid_target = Point(OWL_left_eye.Match.x + 32, OWL_left_eye.Match.y + 32);
 
                 // Left frame drawings
-                rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+                rectangle( Left, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
                 cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
 
                 // Correlation window drawings
-                rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-                imshow("Correl",OWL.Result );
+                rectangle( OWL_left_eye.Result, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+                imshow("Correl",OWL_left_eye.Result );
                 imshow("Left", Left);
 
 //                OWLtempl= Right(target);
@@ -157,12 +157,12 @@ int main(int argc, char *argv[])
                 double KPy=0.05; // track rate Y
 
                 double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
-                double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
+                double Xoff= 320-(OWL_left_eye.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
                 double LxOld=Lx;
                 Lx=static_cast<int>(LxOld-Xoff*KPx); // roughly 300 servo offset = 320 [pixel offset]
 
                 double LyScaleV = LyRangeV/static_cast<double>(480); //PWM range /pixel range
-                double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
+                double Yoff= (240+(OWL_left_eye.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
                 double LyOld=Ly;
                 Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
             }
