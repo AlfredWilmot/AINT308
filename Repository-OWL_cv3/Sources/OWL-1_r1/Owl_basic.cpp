@@ -141,8 +141,8 @@ int main(int argc, char *argv[])
                 imshow("Correl",OWL.Result );
                 imshow("Left", Left);
 
-                OWLtempl= Right(target);
-                imshow("templ",OWLtempl);
+//                OWLtempl= Right(target);
+//                imshow("templ",OWLtempl);
 
                 /// P control for Left servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
