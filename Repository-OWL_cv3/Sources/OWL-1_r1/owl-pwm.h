@@ -51,7 +51,7 @@ static int LxRangeV=LxRv-LxLv;
 /* User made variables & functions */
 /*--------------------------------*/
 
-/* Important calibrated servo for Owl #1 (measured 08/03/2019) */
+/* Servo calibration values for Owl #1 (measured 08/03/2019) */
 
 //Servo center positions
 const int Owl_1_RxC   = 1590;
@@ -81,7 +81,7 @@ const int IPD = 67; //mm
 const double pi =  3.14159;
 const double deg_to_rad = pi/180;
 
-/* Constant target offset from Owl throughout calibration testing */
+// Constant target offset from Owl throughout calibration testing
 const double test_target_distance = 400; //mm
 
 // Maximum target lateral displacements at constant offset from Owl.
@@ -97,6 +97,9 @@ const double deg_Rx_max =  atan(right_eye_max_left_displacement/  test_target_di
 const double deg_Lx_min = -atan(left_eye_max_left_displacement/  test_target_distance); //-40.36;
 const double deg_Lx_max =  atan(left_eye_max_right_displacement/ test_target_distance); //33.02;
 
+// Number of PWM steps per degree of servo rotation.
+const double left_eye_pwm_steps_per_deg  = (Owl_1_LxMax - Owl_1_LxMin) / (deg_Lx_max - deg_Lx_min);
+const double right_eye_pwm_steps_per_deg = (Owl_1_RxMax - Owl_1_RxMin) / (deg_Rx_max - deg_Rx_min);
 
-const double left_eye_pwm_pulses_per_deg  = (Owl_1_LxMax - Owl_1_LxMin) / (deg_Lx_max - deg_Lx_min);
-const double right_eye_pwm_pulese_per_deg = (Owl_1_RxMax - Owl_1_RxMin) / (deg_Rx_max - deg_Rx_min);
+// Convert PWM step to corresponding angle
+
