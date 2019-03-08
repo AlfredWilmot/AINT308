@@ -79,7 +79,7 @@ const int IPD = 67; //mm
 
 /* Calibration test (08/03/2019) */
 const double pi =  3.14159;
-const double deg_to_rad = pi/180;
+const double rad_to_deg = 180/pi;
 
 // Constant target offset from Owl throughout calibration testing
 const double test_target_distance = 400; //mm
@@ -91,11 +91,11 @@ const double left_eye_max_right_displacement  = 260; //mm
 const double left_eye_max_left_displacement   = 340; //mm
 
 // Note: rotation towards fovea is treated as positive.
-const double deg_Rx_min = -atan(right_eye_max_right_displacement/ test_target_distance); //-38.66;
-const double deg_Rx_max =  atan(right_eye_max_left_displacement/  test_target_distance); //39.52;
+const double deg_Rx_min = -atan(right_eye_max_right_displacement/ test_target_distance) * rad_to_deg; //-38.66;
+const double deg_Rx_max =  atan(right_eye_max_left_displacement/  test_target_distance) * rad_to_deg; //39.52;
 
-const double deg_Lx_min = -atan(left_eye_max_left_displacement/  test_target_distance); //-40.36;
-const double deg_Lx_max =  atan(left_eye_max_right_displacement/ test_target_distance); //33.02;
+const double deg_Lx_min = -atan(left_eye_max_left_displacement/  test_target_distance) * rad_to_deg; //-40.36;
+const double deg_Lx_max =  atan(left_eye_max_right_displacement/ test_target_distance) * rad_to_deg; //33.02;
 
 // Number of PWM steps per degree of servo rotation.
 const double left_eye_pwm_steps_per_deg  = (Owl_1_LxMax - Owl_1_LxMin) / (deg_Lx_max - deg_Lx_min);
@@ -106,4 +106,8 @@ const double right_eye_pwm_steps_per_deg = (Owl_1_RxMax - Owl_1_RxMin) / (deg_Rx
 // Take the ratio between this calculated value, and the expected value, to see how well they corroborate.
 
 // Convert PWM step to corresponding angle
+static double Rx_theta = 0;
+static double Lx_theta = 0;
 
+void update_Rx_theta(){ Rx_theta = (double)(Owl_1_RxC - Rx) / right_eye_pwm_steps_per_deg;}
+void update_Lx_theta(){ Lx_theta = (double)(Owl_1_LxC - Lx) / left_eye_pwm_steps_per_deg; }

@@ -134,6 +134,10 @@ int main(int argc, char *argv[])
                  /* DEBUG SERVO POSITION */
 //                cout << "Rx:\t" << Rx << "\nLx:\t" << Lx << "\n";
 //                cout << "Ry:\t" << Ry << "\nLy:\t" << Ly << "\n" << "Neck:\t" << Neck << "\n\n";
+                update_Rx_theta();
+                update_Lx_theta();
+                cout << "Rx_theta: " << Rx_theta << " deg\n";
+                cout << "Lx_theta: " << Lx_theta << " deg\n";
             }
 
             //============= Normalised Cross Correlation ==========================
