@@ -80,6 +80,7 @@ const int IPD = 67; //mm
 /* Calibration test (08/03/2019) */
 const double pi =  3.14159;
 const double rad_to_deg = 180/pi;
+const double deg_to_rad = pi/180;
 
 // Constant target offset from Owl throughout calibration testing
 const double test_target_distance = 400; //mm
@@ -111,3 +112,16 @@ static double Lx_theta = 0;
 
 void update_Rx_theta(){ Rx_theta = (double)(Owl_1_RxC - Rx) / right_eye_pwm_steps_per_deg;}
 void update_Lx_theta(){ Lx_theta = (double)(Owl_1_LxC - Lx) / left_eye_pwm_steps_per_deg; }
+
+
+// Distance estimation
+static double distance_estimate = 0; //mm
+
+void update_distance_estimate()
+{
+    // if both x-axis angles are positive...
+    double estimate_1 = sin(pi/2 - Rx_theta * deg_to_rad) * IPD / (sin(Lx_theta * deg_to_rad));
+    double estimate_2 = sin(pi/2 - Lx_theta * deg_to_rad) * IPD / (sin(Rx_theta * deg_to_rad));
+
+    distance_estimate = (estimate_1 + estimate_2) / 2;
+}
