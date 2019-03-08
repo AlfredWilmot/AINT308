@@ -47,7 +47,7 @@ using namespace std;
 using namespace cv;
 
 
-void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *, bool);
+void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *, bool, int, int, int, int);
 
 
 int main(int argc, char *argv[])
@@ -61,10 +61,12 @@ int main(int argc, char *argv[])
     int PORT=12345;
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
-    //centre eyes and neck
-    Rx = RxC; Lx = 1470; // LxC;
-    Ry = RyC; Ly = 1660; //LyC;
-    Neck= NeckC;
+    /* Center servo values (according to owl #1 servo calibration) */
+    Rx   = Owl_1_RxC;
+    Lx   = Owl_1_LxC;
+    Ry   = Owl_1_RyC;
+    Ly   = Owl_1_LyC;
+    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
@@ -91,20 +93,23 @@ int main(int argc, char *argv[])
         while (inLOOP){
 
             // Capture frames and return any key values pressed.
+            waitKey(100);
             int key = camera_loop(&cap);
+
+            int step = 5;
 
             switch (key){
             case 'w': //up
-                Ry=Ry+5;Ly=Ly-5;
+                Ry=Ry+step;Ly=Ly-step;
                 break;
             case 's'://down
-                Ry=Ry-5;Ly=Ly+5;
+                Ry=Ry-step;Ly=Ly+step;
                 break;
             case 'a'://left
-                Rx=Rx-5;Lx=Lx-5;
+                Rx=Rx-step;Lx=Lx-step;
                 break;
             case 'd'://right
-                Rx=Rx+5;Lx=Lx+5;
+                Rx=Rx+step;Lx=Lx+step;
                 break;
             case 'c':
                 OWLtempl= Right(target);
@@ -112,7 +117,6 @@ int main(int argc, char *argv[])
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
                 break;
-
             case 'j': // take image for calibration - max = 20
                 if(calibCounter == 20){
                     cout << "20 pairs captured already" << endl;
@@ -122,12 +126,14 @@ int main(int argc, char *argv[])
                     calibCounter++;
                 }
                 break;
-
             case 27: //ESC
                 inLOOP = false;
                 break;
             default:
                 key=key;
+                 /* DEBUG SERVO POSITION */
+//                cout << "Rx:\t" << Rx << "\nLx:\t" << Lx << "\n";
+//                cout << "Ry:\t" << Ry << "\nLy:\t" << Ly << "\n" << "Neck:\t" << Neck << "\n\n";
             }
 
             //============= Normalised Cross Correlation ==========================
@@ -138,8 +144,8 @@ int main(int argc, char *argv[])
                 /// P control for the servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
 
-                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false);
-                servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true);
+                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
+                servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
             }
 
             /* Update servo position */
@@ -168,35 +174,54 @@ int main(int argc, char *argv[])
 
 
 
-void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y, bool is_right_eye)
+void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y, bool is_right_eye, int min_x, int max_x, int min_y, int max_y)
 {
 
     double tmp = 0;
 
-    double LxScaleV = *range_x/static_cast<double>(640);                    //PWM range /pixel range
-    double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/LxScaleV ;        // compare to centre of image
+    double xScaleV = *range_x/static_cast<double>(640);                    //PWM range /pixel range
+    double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/xScaleV ;        // compare to centre of image
     tmp = *axis_x;
     *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
 
-    double LyScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
+    double yScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
 
     double Yoff = 0;
 
     if(is_right_eye)
     {
-        Yoff = 240-(owl_eye->Match.y - OWLtempl.rows/2)/LyScaleV ;  // compare to centre of image
+        Yoff = 240-(owl_eye->Match.y - OWLtempl.rows/2)/yScaleV ;  // compare to centre of image
         tmp = *axis_y;
         *axis_y=static_cast<int>(tmp + Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
     }
     else
     {
-        Yoff = 240+(owl_eye->Match.y + OWLtempl.rows/2)/LyScaleV ;
+        Yoff = 240+(owl_eye->Match.y + OWLtempl.rows/2)/yScaleV ;
         tmp = *axis_y;
         *axis_y=static_cast<int>(tmp - Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
     }
 
 
+    /* x-axis software end-stop */
+    if((double)max_x <= *axis_x)
+    {
+        *axis_x = max_x;
+    }
+    else if ((double)min_x >= *axis_x)
+    {
+        *axis_x = min_x;
+    }
 
+
+    /* y-axis software end-stop */
+    if((double)max_y <= *axis_y)
+    {
+        *axis_y = max_y;
+    }
+    else if ((double)min_y >= *axis_y)
+    {
+        *axis_y = min_y;
+    }
 
 
 }

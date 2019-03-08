@@ -7,6 +7,7 @@
 // PFC Owl robot
 // (c) Plymouth University
 
+#include <math.h>
 
 // OWL eye ranges (max)
 static int RyBm = 1120; // (bottom) to
@@ -45,3 +46,57 @@ static int RyRangeV=RyTv-RyBv;
 static int RxRangeV=RxRv-RxLv;
 static int LyRangeV=LyTv-LyBv; // reflected so negative
 static int LxRangeV=LxRv-LxLv;
+
+/*----------------------------------*/
+/* User made variables & functions */
+/*--------------------------------*/
+
+/* Important calibrated servo for Owl #1 (measured 08/03/2019) */
+
+//Servo center positions
+const int Owl_1_RxC   = 1590;
+const int Owl_1_LxC   = 1535;
+const int Owl_1_RyC   = 1515;
+const int Owl_1_LyC   = 1545;
+const int Owl_1_NeckC = 1540;
+
+//Servo minimum positions (TBA)
+const int Owl_1_RxMin   = RxLm; //1200
+const int Owl_1_LxMin   = LxLm; //1196
+const int Owl_1_RyMin   = RyBm;
+const int Owl_1_LyMin   = LyTm;
+const int Owl_1_NeckMin = NeckR;
+
+//Servo maximum positions (TBA)
+const int Owl_1_RxMax  = RxRm; //1890
+const int Owl_1_LxMax  = LxRm; //1850
+const int Owl_1_RyMax  = RyTm;
+const int Owl_1_LyMax  = LyBm;
+const int Owl_1_NecMax = NeckL;
+
+const int IPD = 67; //mm
+
+
+/* Calibration test (08/03/2019) */
+const double pi =  3.14159;
+const double deg_to_rad = pi/180;
+
+/* Constant target offset from Owl throughout calibration testing */
+const double test_target_distance = 400; //mm
+
+// Maximum target lateral displacements at constant offset from Owl.
+const double right_eye_max_right_displacement = 320; //mm
+const double right_eye_max_left_displacement  = 330; //mm
+const double left_eye_max_right_displacement  = 260; //mm
+const double left_eye_max_left_displacement   = 340; //mm
+
+// Note: rotation towards fovea is treated as positive.
+const double deg_Rx_min = -atan(right_eye_max_right_displacement/ test_target_distance); //-38.66;
+const double deg_Rx_max =  atan(right_eye_max_left_displacement/  test_target_distance); //39.52;
+
+const double deg_Lx_min = -atan(left_eye_max_left_displacement/  test_target_distance); //-40.36;
+const double deg_Lx_max =  atan(left_eye_max_right_displacement/ test_target_distance); //33.02;
+
+
+const double left_eye_pwm_pulses_per_deg  = (Owl_1_LxMax - Owl_1_LxMin) / (deg_Lx_max - deg_Lx_min);
+const double right_eye_pwm_pulese_per_deg = (Owl_1_RxMax - Owl_1_RxMin) / (deg_Rx_max - deg_Rx_min);

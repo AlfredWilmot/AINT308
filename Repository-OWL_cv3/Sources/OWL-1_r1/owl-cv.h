@@ -234,7 +234,7 @@ int camera_loop(cv::VideoCapture *vid_cap)
     }
 
 
-    cv::waitKey(10);
+    //cv::waitKey(10);
 
     return cv::waitKey(10); // this is a pause long enough to allow a stable photo to be taken.
 
