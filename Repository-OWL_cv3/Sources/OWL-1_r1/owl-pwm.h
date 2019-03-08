@@ -101,5 +101,9 @@ const double deg_Lx_max =  atan(left_eye_max_right_displacement/ test_target_dis
 const double left_eye_pwm_steps_per_deg  = (Owl_1_LxMax - Owl_1_LxMin) / (deg_Lx_max - deg_Lx_min);
 const double right_eye_pwm_steps_per_deg = (Owl_1_RxMax - Owl_1_RxMin) / (deg_Rx_max - deg_Rx_min);
 
+// Calibration error:
+// (extrema - mid)*pwm_steps_per_deg = calculated_endpoint_angle
+// Take the ratio between this calculated value, and the expected value, to see how well they corroborate.
+
 // Convert PWM step to corresponding angle
 
