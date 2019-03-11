@@ -62,11 +62,11 @@ int main(int argc, char *argv[])
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
     /* Center servo values (according to owl #1 servo calibration) */
-    Rx   = Owl_1_RxC;
-    Lx   = Owl_1_LxC;
-    Ry   = Owl_1_RyC;
-    Ly   = Owl_1_LyC;
-    Neck = Owl_1_NeckC;
+    Rx   = Owl_8_RxC;
+    Lx   = Owl_8_LxC;
+    Ry   = Owl_8_RyC;
+    Ly   = Owl_8_LyC;
+    Neck = Owl_8_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
@@ -93,7 +93,6 @@ int main(int argc, char *argv[])
         while (inLOOP){
 
             // Capture frames and return any key values pressed.
-            waitKey(100);
             int key = camera_loop(&cap);
 
             int step = 5;
@@ -118,12 +117,13 @@ int main(int argc, char *argv[])
                 inLOOP=false; // quit loop and start tracking target
                 break;
             case 'j': // take image for calibration - max = 20
-                if(calibCounter == 20){
-                    cout << "20 pairs captured already" << endl;
+                if(calibCounter < 20){
+                    captureCalibPair(cap, testImages, calibCounter);
+                    calibCounter++;
+
                 }else
                 {
-                    captureCalibPair(cap, myCalibrations, calibCounter);
-                    calibCounter++;
+                    cout << "20 pairs captured already" << endl;
                 }
                 break;
             case 27: //ESC
@@ -137,9 +137,9 @@ int main(int argc, char *argv[])
                 update_Rx_theta();
                 update_Lx_theta();
                 update_distance_estimate();
-                cout << "Rx_theta: " << Rx_theta << " deg\n";
-                cout << "Lx_theta: " << Lx_theta << " deg\n";
-                cout << "target distance: " << distance_estimate << "\n";
+//                cout << "Rx_theta: " << Rx_theta << " deg\n";
+//                cout << "Lx_theta: " << Lx_theta << " deg\n";
+//                cout << "target distance: " << distance_estimate << "\n";
             }
 
             //============= Normalised Cross Correlation ==========================

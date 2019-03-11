@@ -50,8 +50,8 @@ int main(int argc, char** argv)
 {
     std::string Left_filename = "";
     std::string Right_filename = "";
-    std::string intrinsic_filename = "../../Data/intrinsics.yml";
-    std::string extrinsic_filename = "../../Data/extrinsics.yml";
+    std::string intrinsic_filename = "../../Data/intrinsics_owl8.xml";
+    std::string extrinsic_filename = "../../Data/extrinsics_owl8.xml";
     std::string disparity_filename = "Disparity.jpg";
     std::string point_cloud_filename = "PointCloud";
 

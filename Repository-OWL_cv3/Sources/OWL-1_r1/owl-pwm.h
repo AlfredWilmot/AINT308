@@ -60,6 +60,13 @@ const int Owl_1_RyC   = 1515;
 const int Owl_1_LyC   = 1545;
 const int Owl_1_NeckC = 1540;
 
+//Servo center position for owl-08
+const int Owl_8_RxC   = 1540;
+const int Owl_8_LxC   = 1535;
+const int Owl_8_RyC   = 1505;
+const int Owl_8_LyC   = 1545;
+const int Owl_8_NeckC = 1540;
+
 //Servo minimum positions (TBA)
 const int Owl_1_RxMin   = RxLm; //1200
 const int Owl_1_LxMin   = LxLm; //1196
@@ -124,4 +131,10 @@ void update_distance_estimate()
     double estimate_2 = sin(pi/2 - Lx_theta * deg_to_rad) * IPD / (sin(Rx_theta * deg_to_rad));
 
     distance_estimate = (estimate_1 + estimate_2) / 2;
+}
+
+void stereo_eyes()
+{
+ //fix the eyes in a position for stereo calibrations. miniscule toe in
+
 }

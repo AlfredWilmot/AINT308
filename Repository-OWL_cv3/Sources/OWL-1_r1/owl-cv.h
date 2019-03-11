@@ -90,7 +90,7 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 
 //calibration vars
 static int calibCounter = 1;
-const string myCalibrations = "../../Data/mySavedImages/Test"; //location of the folder to store calibrating images
+const string testImages = "../../Data/mySavedImages/Test2/"; //location of the folder to store calibrating images
 
 //Take the
 int captureCalibPair(cv::VideoCapture &cap, string Folder, int calibCounter){
@@ -101,19 +101,14 @@ cv::Mat Frame; // create matrix for the camera feed
     {
         return(-1);
     }
-    //Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-    //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-    // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-    cv::Mat Right= Frame( Rect(0, 0, 640, 480)); //Take the right frame
-    cv::Mat Left=  Frame( Rect(640, 0, 640, 480)); //Take the right frame u
+    cv::Mat Right = Frame( Rect(0, 0, 640, 480)); //Take the right frame
+    cv::Mat Left = Frame( Rect(640, 0, 640, 480)); //Take the left frame
     string fnameR(Folder + "right" + to_string(calibCounter) + ".jpg");
-    string fnameL=(Folder + "left" +  to_string(calibCounter) + ".jpg");
+    string fnameL(Folder + "left" +  to_string(calibCounter) + ".jpg");
     cv::imwrite(fnameL, Left);
     cv::imwrite(fnameR, Right);
-    cout << "Saved " << calibCounter + 1 << " stereo pair" << Folder <<endl;
+    cout << "Saved " << calibCounter << " stereo pair" << Folder <<endl;
     cv::waitKey(100);
-
-    calibCounter++;
 
 }
 
@@ -236,7 +231,7 @@ int camera_loop(cv::VideoCapture *vid_cap)
 
     //cv::waitKey(10);
 
-    return cv::waitKey(10); // this is a pause long enough to allow a stable photo to be taken.
+    return cv::waitKey(100); // this is a pause long enough to allow a stable photo to be taken.
 
 }
 
