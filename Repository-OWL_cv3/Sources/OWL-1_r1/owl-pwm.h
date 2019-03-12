@@ -118,7 +118,7 @@ static double Rx_theta = 0;
 static double Lx_theta = 0;
 
 void update_Rx_theta(){ Rx_theta = (double)(Owl_1_RxC - Rx) / right_eye_pwm_steps_per_deg;}
-void update_Lx_theta(){ Lx_theta = (double)(Owl_1_LxC - Lx) / left_eye_pwm_steps_per_deg; }
+void update_Lx_theta(){ Lx_theta = -(double)(Owl_1_LxC - Lx) / left_eye_pwm_steps_per_deg; }
 
 
 // Distance estimation

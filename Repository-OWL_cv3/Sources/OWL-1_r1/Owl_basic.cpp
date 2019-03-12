@@ -137,9 +137,9 @@ int main(int argc, char *argv[])
                 update_Rx_theta();
                 update_Lx_theta();
                 update_distance_estimate();
-//                cout << "Rx_theta: " << Rx_theta << " deg\n";
-//                cout << "Lx_theta: " << Lx_theta << " deg\n";
-//                cout << "target distance: " << distance_estimate << "\n";
+                cout << "Rx_theta: " << Rx_theta << " deg\n";
+                cout << "Lx_theta: " << Lx_theta << " deg\n";
+                cout << "target distance: " << distance_estimate << "\n";
             }
 
             //============= Normalised Cross Correlation ==========================
