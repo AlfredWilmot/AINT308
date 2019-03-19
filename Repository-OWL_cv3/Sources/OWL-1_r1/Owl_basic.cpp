@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
 //    Ry   = Owl_8_RyC;
 //    Ly   = Owl_8_LyC;
 //    Neck = Owl_8_NeckC;
-    Rx   = Owl_1_RxC - 18*2;
-    Lx   = Owl_1_LxC + 18*2;
+    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+    Lx   = Owl_1_LxC + 18*3;
     Ry   = Owl_1_RyC;
     Ly   = Owl_1_LyC;
     Neck = Owl_1_NeckC;
@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
                 /*/
 
                 destroyAllWindows();
-                if (canCalib) {
+                if (canCalib)
+                {
                     Size boardSize; //store board size parameters
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
@@ -173,14 +174,13 @@ int main(int argc, char *argv[])
 
                     StereoCalib(imagelist, boardSize, squareSize, true, true, showRectified);
                     canCalib = false;
+                    camera_setup_done= false; //reset flag so that can use click-to-verge feature.
+                    destroyAllWindows();
                 }
-                else {
-
-
-                }
-
 
                 break;
+
+
             case 27: //ESC
                 inLOOP = false;
                 break;
@@ -208,6 +208,7 @@ int main(int argc, char *argv[])
                 servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
 
                 update_distance_estimate();
+                //update_distance_estimate_PFC();
                 cout << "target distance: " << distance_estimate << "\n";
             }
 

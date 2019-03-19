@@ -135,7 +135,9 @@ void update_distance_estimate()
 
 void update_distance_estimate_PFC()
 {
-    //Get D_l
+    
+    double a =(float(Rx-RxC)*pi)/
+    
     double D_l  = IPD * cos(Rx_theta * deg_to_rad) / sin(Lx_theta * deg_to_rad + Rx_theta * deg_to_rad);
     double A    = D_l;
     double B    = IPD/2;
