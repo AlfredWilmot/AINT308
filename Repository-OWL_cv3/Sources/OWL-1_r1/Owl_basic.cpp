@@ -37,6 +37,7 @@
 #include "owl-pwm.h"
 #include "owl-comms.h"
 #include "owl-cv.h"
+#include "owl-stereo-calib.h"
 
 
 #include <iostream> // for standard I/O
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
     Neck = Owl_8_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
+    bool canCalib = true;
 
     while (inLOOP){
 
@@ -123,8 +125,45 @@ int main(int argc, char *argv[])
 
                 }else
                 {
+                    canCalib = true;
                     cout << "20 pairs captured already" << endl;
                 }
+                break;
+            case 'l':
+                if (canCalib) {
+                    Size boardSize; //store board size parameters
+                    string imagelistfn; //store image list locations
+                    bool showRectified; //chose to show rectified images
+
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib.xml|}");
+                    if (parser.has("help"))
+                        return print_help();
+                    showRectified = !parser.has("nr");
+                    imagelistfn = parser.get<string>("@input");
+                    boardSize.width = parser.get<int>("w");
+                    boardSize.height = parser.get<int>("h");
+                    float squareSize = parser.get<float>("s");
+                    if (!parser.check())
+                    {
+                        parser.printErrors();
+                        return 1;
+                    }
+                    vector<string> imagelist;
+                    bool ok = readStringList(imagelistfn, imagelist);
+                    if(!ok || imagelist.empty())
+                    {
+                        cout << "can not open " << imagelistfn << " or the string list is empty" << endl;
+                        return print_help();
+                    }
+
+                    StereoCalib(imagelist, boardSize, squareSize, true, true, showRectified);
+                }
+                else {
+
+
+                }
+
+
                 break;
             case 27: //ESC
                 inLOOP = false;
@@ -231,3 +270,5 @@ void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlC
 
 
 }
+//disp ushort for disparity not disp8
+//find relationship between brightness and distance in disparity image. can be linear or inverse
