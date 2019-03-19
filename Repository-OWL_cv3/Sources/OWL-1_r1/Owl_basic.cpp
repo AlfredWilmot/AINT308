@@ -135,6 +135,15 @@ int main(int argc, char *argv[])
                 }
                 break;
             case 'l':
+
+                /*/
+                 *   Pre-calibration steps
+                 * - Change folder location
+                 * - Create the new folder for that location
+                 * - Take pictures
+                 * - Change .xml file picture locations to the new folder
+                /*/
+
                 destroyAllWindows();
                 if (canCalib) {
                     Size boardSize; //store board size parameters
