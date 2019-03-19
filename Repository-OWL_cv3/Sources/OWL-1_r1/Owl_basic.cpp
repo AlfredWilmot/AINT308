@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
 //    Ry   = Owl_8_RyC;
 //    Ly   = Owl_8_LyC;
 //    Neck = Owl_8_NeckC;
-    Rx   = Owl_1_RxC;
-    Lx   = Owl_1_LxC;
+    Rx   = Owl_1_RxC - 18*2;
+    Lx   = Owl_1_LxC + 18*2;
     Ry   = Owl_1_RyC;
     Ly   = Owl_1_LyC;
     Neck = Owl_1_NeckC;
@@ -135,6 +135,7 @@ int main(int argc, char *argv[])
                 }
                 break;
             case 'l':
+                destroyAllWindows();
                 if (canCalib) {
                     Size boardSize; //store board size parameters
                     string imagelistfn; //store image list locations
@@ -162,6 +163,7 @@ int main(int argc, char *argv[])
                     }
 
                     StereoCalib(imagelist, boardSize, squareSize, true, true, showRectified);
+                    canCalib = false;
                 }
                 else {
 
@@ -180,9 +182,8 @@ int main(int argc, char *argv[])
 //                cout << "Ry:\t" << Ry << "\nLy:\t" << Ly << "\n" << "Neck:\t" << Neck << "\n\n";
                 update_Rx_theta();
                 update_Lx_theta();
-                update_distance_estimate();
-//                cout << "Rx_theta: " << Rx_theta << " deg\n";
-//                cout << "Lx_theta: " << Lx_theta << " deg\n";
+                cout << "Rx_theta: " << Rx_theta << " deg\n";
+                cout << "Lx_theta: " << Lx_theta << " deg\n";
 
             }
 
@@ -197,6 +198,7 @@ int main(int argc, char *argv[])
                 servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
                 servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
 
+                update_distance_estimate();
                 cout << "target distance: " << distance_estimate << "\n";
             }
 

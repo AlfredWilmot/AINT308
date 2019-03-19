@@ -136,6 +136,8 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                 double sf = 640./MAX(img.rows, img.cols);
                 resize(cimg, cimg1, Size(), sf, sf);
                 imshow("corners", cimg1);
+
+                std::cout << "\nPress ESC or q to exit calibration interface \n";
                 char c = (char)waitKey(500);
                 if( c == 27 || c == 'q' || c == 'Q' ) //Allow ESC to quit
                     exit(-1);
