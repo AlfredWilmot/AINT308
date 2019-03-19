@@ -54,8 +54,8 @@ static int LxRangeV=LxRv-LxLv;
 /* Servo calibration values for Owl #1 (measured 08/03/2019) */
 
 //Servo center positions
-const int Owl_1_RxC   = 1590;
-const int Owl_1_LxC   = 1535;
+const int Owl_1_RxC   = 1600 - 18;
+const int Owl_1_LxC   = 1535 + 18;
 const int Owl_1_RyC   = 1515;
 const int Owl_1_LyC   = 1545;
 const int Owl_1_NeckC = 1540;

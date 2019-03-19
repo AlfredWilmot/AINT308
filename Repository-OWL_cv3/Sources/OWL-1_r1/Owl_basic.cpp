@@ -62,11 +62,16 @@ int main(int argc, char *argv[])
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
     /* Center servo values (according to owl #1 servo calibration) */
-    Rx   = Owl_8_RxC;
-    Lx   = Owl_8_LxC;
-    Ry   = Owl_8_RyC;
-    Ly   = Owl_8_LyC;
-    Neck = Owl_8_NeckC;
+//    Rx   = Owl_8_RxC;
+//    Lx   = Owl_8_LxC;
+//    Ry   = Owl_8_RyC;
+//    Ly   = Owl_8_LyC;
+//    Neck = Owl_8_NeckC;
+    Rx   = Owl_1_RxC;
+    Lx   = Owl_1_LxC;
+    Ry   = Owl_1_RyC;
+    Ly   = Owl_1_LyC;
+    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
 
@@ -137,9 +142,9 @@ int main(int argc, char *argv[])
                 update_Rx_theta();
                 update_Lx_theta();
                 update_distance_estimate();
-                cout << "Rx_theta: " << Rx_theta << " deg\n";
-                cout << "Lx_theta: " << Lx_theta << " deg\n";
-                cout << "target distance: " << distance_estimate << "\n";
+//                cout << "Rx_theta: " << Rx_theta << " deg\n";
+//                cout << "Lx_theta: " << Lx_theta << " deg\n";
+
             }
 
             //============= Normalised Cross Correlation ==========================
@@ -152,6 +157,8 @@ int main(int argc, char *argv[])
 
                 servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
                 servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
+
+                cout << "target distance: " << distance_estimate << "\n";
             }
 
             /* Update servo position */
