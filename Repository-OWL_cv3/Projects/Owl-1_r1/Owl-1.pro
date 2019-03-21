@@ -39,4 +39,8 @@ HEADERS += \
     ../../Sources/Owl-1_r1/owl-disparity.h
 
 DISTFILES += \
-    ../../Data/stereo_calib.xml
+    ../../Data/stereo_calib_Test5.xml \
+    ../../Data/stereo_calib_Test1.xml \
+    ../../Data/stereo_calib_Test2.xml \
+    ../../Data/stereo_calib_Test3.xml \
+    ../../Data/stereo_calib_Test4.xml

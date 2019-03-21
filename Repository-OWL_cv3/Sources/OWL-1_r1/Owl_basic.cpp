@@ -63,20 +63,22 @@ int main(int argc, char *argv[])
     int PORT=12345;
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
-    /* Center servo values (according to owl #1 servo calibration) */
-//    Rx   = Owl_8_RxC;
-//    Lx   = Owl_8_LxC;
-//    Ry   = Owl_8_RyC;
-//    Ly   = Owl_8_LyC;
-//    Neck = Owl_8_NeckC;
-    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
-    Lx   = Owl_1_LxC + 18*3;
-    Ry   = Owl_1_RyC;
-    Ly   = Owl_1_LyC;
-    Neck = Owl_1_NeckC;
+    /* Center servo values (according to owl #8 servo calibration) */
+    Rx   = Owl_8_RxC; // - 18*2;
+    Lx   = Owl_8_LxC; //+ 18*2;
+    Ry   = Owl_8_RyC;
+    Ly   = Owl_8_LyC;
+    Neck = Owl_8_NeckC;
+
+//    /* Toe in servo values (according to owl #1 servo calibration) */
+//    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+//    Lx   = Owl_1_LxC + 18*3;
+//    Ry   = Owl_1_RyC;
+//    Ly   = Owl_1_LyC;
+//    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
-    bool canCalib = true;
+    bool canCalib = false;
 
     while (inLOOP){
 
@@ -135,6 +137,15 @@ int main(int argc, char *argv[])
                     cout << "20 pairs captured already" << endl;
                 }
                 break;
+            case 'k': // toggles requirement for calibration pictures and print if true or false
+
+                canCalib = !canCalib;
+
+                cout << "\nCan calibrate = "
+                     << boolalpha << canCalib
+                     << endl;
+
+                break;
             case 'l':
 
                 /*/
@@ -142,8 +153,10 @@ int main(int argc, char *argv[])
                  * - Change folder location
                  * - Create the new folder for that location
                  * - Take pictures
-                 * - Change .xml file picture locations to the new folder
-                /*/
+                 * - Change .xml which calibration set to use in parser Test'N'
+                 /*/
+
+                // Currently using Mark calibrations set (test 1)
 
                 destroyAllWindows(); //removes irrelevant windows
                 if (canCalib)
@@ -152,7 +165,7 @@ int main(int argc, char *argv[])
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test1.xml|}");
                     if (parser.has("help"))
                         return print_help();
                     showRectified = !parser.has("nr");
@@ -198,8 +211,8 @@ int main(int argc, char *argv[])
 //                cout << "Ry:\t" << Ry << "\nLy:\t" << Ly << "\n" << "Neck:\t" << Neck << "\n\n";
                 update_Rx_theta();
                 update_Lx_theta();
-                cout << "Rx_theta: " << Rx_theta << " deg\n";
-                cout << "Lx_theta: " << Lx_theta << " deg\n";
+//                cout << "Rx_theta: " << Rx_theta << " deg\n";
+//                cout << "Lx_theta: " << Lx_theta << " deg\n";
 
             }
 
