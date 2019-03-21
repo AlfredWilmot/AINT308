@@ -239,7 +239,6 @@ Makefile: ..\Owl-1_r1\Owl-1.pro C:\Qt5\5.12.0\msvc2017_64\mkspecs\win32-msvc\qma
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\qt_config.prf \
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\win32-msvc\qmake.conf \
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\spec_post.prf \
-		.qmake.stash \
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\exclusive_builds.prf \
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\common\msvc-version.conf \
 		C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\toolchain.prf \
@@ -424,7 +423,6 @@ C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\qt_functions.prf:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\qt_config.prf:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\win32-msvc\qmake.conf:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\spec_post.prf:
-.qmake.stash:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\exclusive_builds.prf:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\common\msvc-version.conf:
 C:\Qt5\5.12.0\msvc2017_64\mkspecs\features\toolchain.prf:

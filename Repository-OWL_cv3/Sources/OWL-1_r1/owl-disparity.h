@@ -1,3 +1,8 @@
+#ifndef OWLDISPARITY_H
+#define OWLDISPARITY_H
+
+#endif // OWLDISPARITY_H
+
 /*
  *  stereo_match.cpp
  *  calibration
@@ -22,7 +27,7 @@
 using namespace cv;
 using namespace std;
 
-static void print_help()
+static void print_help_disparity()
 {
     printf("\nDemo stereo matching converting L and R images into disparity and point clouds\n");
     printf("\nUsage: stereo_match <left_image> <right_image> [--algorithm=bm|sgbm|hh|sgbm3way] [--blocksize=<block_size>]\n"
@@ -46,7 +51,7 @@ static void saveXYZ(const char* filename, const Mat& mat)
     fclose(fp);
 }
 
-int main(int argc, char** argv)
+int showDisparity(int argc, char** argv)
 {
     std::string Left_filename = "";
     std::string Right_filename = "";
@@ -67,7 +72,7 @@ int main(int argc, char** argv)
                                  "{@arg1||}{@arg2||}{help h||}{algorithm||}{max-disparity|256|}{blocksize|1|}{no-display||}{scale|1|}{i||}{e||}{o||}{p||}");
     if(parser.has("help"))
     {
-        print_help();
+        print_help_disparity();
         return 0;
     }
     //PFC Left_filename = parser.get<std::string>(0);
@@ -101,13 +106,13 @@ int main(int argc, char** argv)
     if( alg < 0 )
     {
         printf("Command-line parameter error: Unknown stereo algorithm\n\n");
-        print_help();
+        print_help_disparity();
         return -1;
     }
     if ( numberOfDisparities < 1 || numberOfDisparities % 16 != 0 )
     {
         printf("Command-line parameter error: The max disparity (--maxdisparity=<...>) must be a positive integer divisible by 16\n");
-        print_help();
+        print_help_disparity();
         return -1;
     }
     if (scale < 0)

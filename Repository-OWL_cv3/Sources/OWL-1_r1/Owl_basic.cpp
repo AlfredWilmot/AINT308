@@ -38,6 +38,7 @@
 #include "owl-comms.h"
 #include "owl-cv.h"
 #include "owl-stereo-calib.h"
+#include "owl-disparity.h"
 
 
 #include <iostream> // for standard I/O
@@ -144,7 +145,7 @@ int main(int argc, char *argv[])
                  * - Change .xml file picture locations to the new folder
                 /*/
 
-                destroyAllWindows();
+                destroyAllWindows(); //removes irrelevant windows
                 if (canCalib)
                 {
                     Size boardSize; //store board size parameters
@@ -179,8 +180,14 @@ int main(int argc, char *argv[])
                 }
 
                 break;
+            case 'g':
 
+                destroyAllWindows(); //closes irrelevant windows
+                showDisparity(argc - 1, argv + 1);
+                camera_setup_done= false; //reset flag so that can use click-to-verge feature.
+                destroyAllWindows();
 
+                break;
             case 27: //ESC
                 inLOOP = false;
                 break;
