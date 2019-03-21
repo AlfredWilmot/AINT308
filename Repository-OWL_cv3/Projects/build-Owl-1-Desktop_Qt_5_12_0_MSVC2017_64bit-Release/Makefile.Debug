@@ -52,7 +52,8 @@ DIST          = ../../Data/stereo_calib.xml ../../Sources/Owl-1_r1/owl-comms.h \
 		../../Sources/Owl-1_r1/owl-pwm.h \
 		../../Sources/Owl-1_r1/owl-cv.h \
 		../../Sources/Owl-1_r1/owl-stereo-calib.h \
-		../../Sources/Owl-1_r1/owl-disparity.h ..\..\Sources\OWL-1_r1\Owl_basic.cpp
+		../../Sources/Owl-1_r1/owl-disparity.h \
+		../../Sources/Owl-1_r1/distance_estimation.h ..\..\Sources\OWL-1_r1\Owl_basic.cpp
 QMAKE_TARGET  = Owl-1
 DESTDIR        = debug\ #avoid trailing-slash linebreak
 TARGET         = Owl-1.exe
@@ -199,6 +200,7 @@ debug\Owl_basic.obj: ..\..\Sources\OWL-1_r1\Owl_basic.cpp ..\..\Sources\OWL-1_r1
 		C:\opencv343\build\include\opencv2\videoio\videoio_c.h \
 		C:\opencv343\build\include\opencv2\imgproc\imgproc.hpp \
 		C:\opencv343\build\include\opencv2\imgproc.hpp \
+		..\..\Sources\OWL-1_r1\distance_estimation.h \
 		..\..\Sources\OWL-1_r1\owl-stereo-calib.h \
 		C:\opencv343\build\include\opencv2\calib3d.hpp \
 		C:\opencv343\build\include\opencv2\features2d.hpp \

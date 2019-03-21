@@ -36,7 +36,8 @@ HEADERS += \
     ../../Sources/Owl-1_r1/owl-pwm.h \
     ../../Sources/Owl-1_r1/owl-cv.h \
     ../../Sources/Owl-1_r1/owl-stereo-calib.h \
-    ../../Sources/Owl-1_r1/owl-disparity.h
+    ../../Sources/Owl-1_r1/owl-disparity.h \
+    ../../Sources/Owl-1_r1/distance_estimation.h
 
 DISTFILES += \
     ../../Data/stereo_calib.xml

@@ -1,7 +1,7 @@
 #ifndef OWLCV_H
 #define OWLCV_H
 
-#endif // OWLCV_H
+
 
 /* Phil Culverhouse
  *
@@ -15,6 +15,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#include "distance_estimation.h"
 
 using namespace std;
 using namespace cv;
@@ -126,7 +128,8 @@ static  cv::Point target_pxl = mid_pxl;
 
 static cv::Rect target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64); // target is at the centre of the camera FOV
 
-static  cv::Mat Left, Right; // images
+static cv::Mat Left, Right;         // images
+static cv::Mat LeftCopy, RightCopy; // copies for overlays
 
 const std::string right_eye = "TEST";
 const std::string left_eye  = "Left_Eye";
@@ -214,6 +217,23 @@ int camera_loop(cv::VideoCapture *vid_cap)
         imshow("Correl",OWL_left_eye.Result );
 
 
+        /* Show distance estimation in window */
+        std::ostringstream distance_txt;
+        distance_txt << distance_estimate << "mm";
+
+
+        target_pxl = cv::Point(OWL_right_eye.Match.x, OWL_right_eye.Match.y);
+
+        cv::putText( RightCopy,
+                     distance_txt.str(),
+                     cv::Point(target_pxl.x, target_pxl.y-5),
+                     cv::FONT_HERSHEY_COMPLEX_SMALL,
+                     1.0,
+                     cv::Scalar(255,255,0),
+                     2);
+
+
+
         /* Update template on every camera-loop */
 //        OWLtempl= Right(target);
 //        imshow("templ",OWLtempl);
@@ -235,6 +255,7 @@ int camera_loop(cv::VideoCapture *vid_cap)
 
 }
 
+#endif // OWLCV_H
 
 /*---- Moves all servos to the position corresponding to the latest PWM mark-period value ----*/
 //void update_servo_position(int ms_delay = 20)

@@ -41,6 +41,8 @@
 #include "owl-disparity.h"
 
 
+#include "distance_estimation.h"
+
 #include <iostream> // for standard I/O
 #include <string>   // for strings
 
@@ -216,7 +218,8 @@ int main(int argc, char *argv[])
 
                 //update_distance_estimate();
                 update_distance_estimate_PFC();
-                cout << "target distance: " << distance_estimate << "\n";
+
+                //cout << "target distance: " << distance_estimate << "\n";
             }
 
             /* Update servo position */
