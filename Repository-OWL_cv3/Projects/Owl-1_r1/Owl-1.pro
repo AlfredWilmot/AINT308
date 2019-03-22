@@ -44,4 +44,7 @@ DISTFILES += \
     ../../Data/stereo_calib_Test1.xml \
     ../../Data/stereo_calib_Test2.xml \
     ../../Data/stereo_calib_Test3.xml \
-    ../../Data/stereo_calib_Test4.xml
+    ../../Data/stereo_calib_Test4.xml \
+    ../../Data/stereo_calib_Test6.xml \
+    ../../Data/stereo_calib_Test7.xml \
+    ../../Data/stereo_calib_Test8.xml

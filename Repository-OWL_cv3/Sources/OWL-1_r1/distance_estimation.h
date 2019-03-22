@@ -20,7 +20,7 @@ const int Owl_1_NeckC = 1540;
 //Servo center position for owl-08
 const int Owl_8_RxC   = 1540;
 const int Owl_8_LxC   = 1535;
-const int Owl_8_RyC   = 1505;
+const int Owl_8_RyC   = 1515;
 const int Owl_8_LyC   = 1545;
 const int Owl_8_NeckC = 1540;
 

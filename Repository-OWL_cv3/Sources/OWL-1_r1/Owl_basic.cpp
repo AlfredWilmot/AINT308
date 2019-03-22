@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
     /* Center servo values (according to owl #8 servo calibration) */
-    Rx   = Owl_8_RxC; // - 18*2;
-    Lx   = Owl_8_LxC; //+ 18*2;
+    Rx   = Owl_8_RxC - 48;
+    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
     Ry   = Owl_8_RyC;
     Ly   = Owl_8_LyC;
     Neck = Owl_8_NeckC;
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test1.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test7.xml|}");
                     if (parser.has("help"))
                         return print_help();
                     showRectified = !parser.has("nr");

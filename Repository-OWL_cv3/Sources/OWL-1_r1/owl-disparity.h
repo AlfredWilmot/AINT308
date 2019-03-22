@@ -230,11 +230,11 @@ int showDisparity(int argc, char** argv)
                 cout  << "Could not open the input video: " << source << endl;
                 //         break;
             }
-            //Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 0); // Note that Left/Right are reversed now
+            Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 0); // Note that Left/Right are reversed now
             //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
             // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-            Right = Frame( Rect(0, 0, 640, 480)); // using a rectangle
-            Left = Frame( Rect(640, 0, 640, 480)); // using a rectangle
+            Left = FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
+            Right = FrameFlpd( Rect(640, 0, 640, 480)); // using a rectangle
             //imshow("Left",Left);imshow("Right", Right);
             //waitKey(30); // display the images
 
