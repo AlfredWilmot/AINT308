@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
                 inLOOP=false; // quit loop and start tracking target
                 break;
             case 'j': // take image for calibration - max = 20
+
                 if(calibCounter < 20){
                     captureCalibPair(cap, testImages, calibCounter);
                     calibCounter++;
