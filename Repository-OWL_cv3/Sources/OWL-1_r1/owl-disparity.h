@@ -335,13 +335,14 @@ int showDisparity(int argc, char** argv)
             firstClick = false; //only runs once
             }
 
-            if (disparityMouseClick){
-                ushort dispValue = disp.at<ushort>(targetPos.x, targetPos.y);
+            if (disparityMouseClick){ //calculate distance
+
+                uchar dispValue = disp.at<uchar>(targetPos.x, targetPos.y);
 
                  //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
                  printf("Disparity value at pixel: %d\n", dispValue);
                  //cout << targetPos.x <<" " << targetPos.y << "\n";
-                 disparityMouseClick = false; //print out once
+                 //disparityMouseClick = false; //print out once
 
 
                  double dispDistance = (65 * 3.6) / dispValue;
