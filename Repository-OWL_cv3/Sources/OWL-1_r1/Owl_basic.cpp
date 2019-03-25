@@ -37,7 +37,11 @@
 #include "owl-pwm.h"
 #include "owl-comms.h"
 #include "owl-cv.h"
+#include "owl-stereo-calib.h"
+#include "owl-disparity.h"
 
+
+#include "distance_estimation.h"
 
 #include <iostream> // for standard I/O
 #include <string>   // for strings
@@ -45,6 +49,9 @@
 
 using namespace std;
 using namespace cv;
+
+
+void servo_P_controller(double, double, int *, int *, OwlCorrel *, int *, int *, bool, int, int, int, int);
 
 
 int main(int argc, char *argv[])
@@ -58,12 +65,22 @@ int main(int argc, char *argv[])
     int PORT=12345;
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
-    //centre eyes and neck
-    Rx = RxC; Lx = 1470; // LxC;
-    Ry = RyC; Ly = 1660; //LyC;
-    Neck= NeckC;
+    /* Center servo values (according to owl #8 servo calibration) */
+    Rx   = Owl_8_RxC - 48;
+    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
+    Ry   = Owl_8_RyC;
+    Ly   = Owl_8_LyC;
+    Neck = Owl_8_NeckC;
+
+//    /* Toe in servo values (according to owl #1 servo calibration) */
+//    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+//    Lx   = Owl_1_LxC + 18*3;
+//    Ry   = Owl_1_RyC;
+//    Ly   = Owl_1_LyC;
+//    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
+    bool canCalib = false;
 
     while (inLOOP){
 
@@ -90,18 +107,20 @@ int main(int argc, char *argv[])
             // Capture frames and return any key values pressed.
             int key = camera_loop(&cap);
 
+            int step = 5;
+
             switch (key){
             case 'w': //up
-                Ry=Ry+5;Ly=Ly-5;
+                Ry=Ry+step;Ly=Ly-step;
                 break;
             case 's'://down
-                Ry=Ry-5;Ly=Ly+5;
+                Ry=Ry-step;Ly=Ly+step;
                 break;
             case 'a'://left
-                Rx=Rx-5;Lx=Lx-5;
+                Rx=Rx-step;Lx=Lx-step;
                 break;
             case 'd'://right
-                Rx=Rx+5;Lx=Lx+5;
+                Rx=Rx+step;Lx=Lx+step;
                 break;
             case 'c':
                 OWLtempl= Right(target);
@@ -109,22 +128,95 @@ int main(int argc, char *argv[])
                 waitKey(1);
                 inLOOP=false; // quit loop and start tracking target
                 break;
-
             case 'j': // take image for calibration - max = 20
-                if(calibCounter == 20){
-                    cout << "20 pairs captured already" << endl;
+
+                if(calibCounter < 20){
+                    captureCalibPair(cap, testImages, calibCounter);
+                    calibCounter++;
+
                 }else
                 {
-                    captureCalibPair(cap, myCalibrations, calibCounter);
-                    calibCounter++;
+                    canCalib = true;
+                    cout << "20 pairs captured already" << endl;
                 }
                 break;
+            case 'k': // toggles requirement for calibration pictures and print if true or false
 
+                canCalib = !canCalib;
+
+                cout << "\nCan calibrate = "
+                     << boolalpha << canCalib
+                     << endl;
+
+                break;
+            case 'l':
+
+                /*/
+                 *   Pre-calibration steps
+                 * - Change folder location
+                 * - Create the new folder for that location
+                 * - Take pictures
+                 * - Change .xml which calibration set to use in parser Test'N'
+                 /*/
+
+                // Currently using Mark calibrations set (test 1)
+
+                destroyAllWindows(); //removes irrelevant windows
+                if (canCalib)
+                {
+                    Size boardSize; //store board size parameters
+                    string imagelistfn; //store image list locations
+                    bool showRectified; //chose to show rectified images
+
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test7.xml|}");
+                    if (parser.has("help"))
+                        return print_help();
+                    showRectified = !parser.has("nr");
+                    imagelistfn = parser.get<string>("@input");
+                    boardSize.width = parser.get<int>("w");
+                    boardSize.height = parser.get<int>("h");
+                    float squareSize = parser.get<float>("s");
+                    if (!parser.check())
+                    {
+                        parser.printErrors();
+                        return 1;
+                    }
+                    vector<string> imagelist;
+                    bool ok = readStringList(imagelistfn, imagelist);
+                    if(!ok || imagelist.empty())
+                    {
+                        cout << "can not open " << imagelistfn << " or the string list is empty" << endl;
+                        return print_help();
+                    }
+
+                    StereoCalib(imagelist, boardSize, squareSize, true, true, showRectified);
+                    canCalib = false;
+                    camera_setup_done= false; //reset flag so that can use click-to-verge feature.
+                    destroyAllWindows();
+                }
+
+                break;
+            case 'g':
+
+                destroyAllWindows(); //closes irrelevant windows
+                showDisparity(argc - 1, argv + 1);
+                camera_setup_done= false; //reset flag so that can use click-to-verge feature.
+                destroyAllWindows();
+
+                break;
             case 27: //ESC
                 inLOOP = false;
                 break;
             default:
                 key=key;
+                 /* DEBUG SERVO POSITION */
+//                cout << "Rx:\t" << Rx << "\nLx:\t" << Lx << "\n";
+//                cout << "Ry:\t" << Ry << "\nLy:\t" << Ly << "\n" << "Neck:\t" << Neck << "\n\n";
+                update_Rx_theta();
+                update_Lx_theta();
+//                cout << "Rx_theta: " << Rx_theta << " deg\n";
+//                cout << "Lx_theta: " << Lx_theta << " deg\n";
+
             }
 
             //============= Normalised Cross Correlation ==========================
@@ -132,41 +224,16 @@ int main(int argc, char *argv[])
 
             if (start_cross_correlation) {
 
-                camera_loop(&cap);
-
-                /* Generate correlation template from left camera */
-                OwlCorrel OWL;
-                OWL = Owl_matchTemplate(Left, OWLtempl);
-
-                Point mid_target = Point(OWL.Match.x + 32, OWL.Match.y + 32);
-
-                // Left frame drawings
-                rectangle( Left, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-                cv::line(Left, mid_pxl, mid_target, cv::Scalar(0, 255, 0), 3);
-
-                // Correlation window drawings
-                rectangle( OWL.Result, OWL.Match, Point( OWL.Match.x + OWLtempl.cols , OWL.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
-                imshow("Correl",OWL.Result );
-                imshow("Left", Left);
-
-//                OWLtempl= Right(target);
-//                imshow("templ",OWLtempl);
-
-                /// P control for Left servo
+                /// P control for the servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
-                //======== try altering KPx & KPy to see the settling time/overshoot
-                double KPx=0.05; // track rate X
-                double KPy=0.05; // track rate Y
 
-                double LxScaleV = LxRangeV/static_cast<double>(640); //PWM range /pixel range
-                double Xoff= 320-(OWL.Match.x + OWLtempl.cols/2)/LxScaleV ; // compare to centre of image
-                double LxOld=Lx;
-                Lx=static_cast<int>(LxOld-Xoff*KPx); // roughly 300 servo offset = 320 [pixel offset]
+                servo_P_controller(0.1, 0.1, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
+                servo_P_controller(0.1, 0.1, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
 
-                double LyScaleV = LyRangeV/static_cast<double>(480); //PWM range /pixel range
-                double Yoff= (240+(OWL.Match.y + OWLtempl.rows/2)/LyScaleV)*KPy ; // compare to centre of image
-                double LyOld=Ly;
-                Ly=static_cast<int>(LyOld-Yoff); // roughly 300 servo offset = 320 [pixel offset]
+                //update_distance_estimate();
+                update_distance_estimate_PFC();
+
+                //cout << "target distance: " << distance_estimate << "\n";
             }
 
             /* Update servo position */
@@ -192,3 +259,59 @@ int main(int argc, char *argv[])
 #endif
     exit(0); // exit here for servo testing only
 }
+
+
+
+void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlCorrel *owl_eye, int *axis_x, int *axis_y, bool is_right_eye, int min_x, int max_x, int min_y, int max_y)
+{
+
+    double tmp = 0;
+
+    double xScaleV = *range_x/static_cast<double>(640);                    //PWM range /pixel range
+    double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/xScaleV ;        // compare to centre of image
+    tmp = *axis_x;
+    *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
+
+    double yScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
+
+    double Yoff = 0;
+
+    if(is_right_eye)
+    {
+        Yoff = 240-(owl_eye->Match.y - OWLtempl.rows/2)/yScaleV ;  // compare to centre of image
+        tmp = *axis_y;
+        *axis_y=static_cast<int>(tmp + Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
+    }
+    else
+    {
+        Yoff = 240+(owl_eye->Match.y + OWLtempl.rows/2)/yScaleV ;
+        tmp = *axis_y;
+        *axis_y=static_cast<int>(tmp - Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
+    }
+
+
+    /* x-axis software end-stop */
+    if((double)max_x <= *axis_x)
+    {
+        *axis_x = max_x;
+    }
+    else if ((double)min_x >= *axis_x)
+    {
+        *axis_x = min_x;
+    }
+
+
+    /* y-axis software end-stop */
+    if((double)max_y <= *axis_y)
+    {
+        *axis_y = max_y;
+    }
+    else if ((double)min_y >= *axis_y)
+    {
+        *axis_y = min_y;
+    }
+
+
+}
+//disp ushort for disparity not disp8
+//find relationship between brightness and distance in disparity image. can be linear or inverse

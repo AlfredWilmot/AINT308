@@ -1,7 +1,7 @@
 #ifndef OWLCV_H
 #define OWLCV_H
 
-#endif // OWLCV_H
+
 
 /* Phil Culverhouse
  *
@@ -16,6 +16,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include "distance_estimation.h"
+
 using namespace std;
 using namespace cv;
 
@@ -26,34 +28,35 @@ struct OwlCorrel {
 
 Mat OWLtempl; // used in correlation
 
-                             // drawn over whatever is in the centre of the FOV, to act as a template
+/* Correlated targets found from each frame based on the correlation with the selected seed template */
+static OwlCorrel OWL_left_eye;
+static OwlCorrel OWL_right_eye;
 
-struct OwlCorrel Owl_matchTemplate(Mat Left, Mat templ){
+struct OwlCorrel Owl_matchTemplate(Mat *eye_frame, Mat *templ, OwlCorrel *matched_ROI){
 
     /// Create the result matrix
-    int result_cols =  Left.cols - templ.cols + 1;
-    int result_rows = Left.rows - templ.rows + 1;
+    int result_cols =  eye_frame->cols - templ->cols + 1;
+    int result_rows = eye_frame->rows - templ->rows + 1;
 
-    static OwlCorrel OWL;
-    OWL.Result.create(result_rows, result_cols,  CV_32FC1 );
+    matched_ROI->Result.create(result_rows, result_cols,  CV_32FC1 );
 
     /// Do the Matching and Normalize
     int match_method = 5; /// CV_TM_CCOEFF_NORMED;
-    matchTemplate( Left, templ, OWL.Result, match_method );
+    matchTemplate( *eye_frame, *templ, matched_ROI->Result, match_method );
     /// Localizing the best match with minMaxLoc
     double minVal; double maxVal; Point minLoc; Point maxLoc;
     Point matchLoc;
 
-    minMaxLoc( OWL.Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+    minMaxLoc( matched_ROI->Result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
     /// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
     //if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED ) //CV3
     if( match_method  == cv::TM_SQDIFF || match_method == cv::TM_SQDIFF_NORMED ) //CV4
-    { OWL.Match = minLoc; }
+    { matched_ROI->Match = minLoc; }
     else
-    { OWL.Match = maxLoc; }
+    { matched_ROI->Match = maxLoc; }
 
-    return (OWL);
+    return (*matched_ROI);
 }
 
 int OwlCalCapture(cv::VideoCapture &cap, string Folder){
@@ -89,7 +92,7 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 
 //calibration vars
 static int calibCounter = 1;
-const string myCalibrations = "../../Data/mySavedImages/Test"; //location of the folder to store calibrating images
+const string testImages = "../../Data/mySavedImages/Test7/"; //location of the folder to store calibrating images
 
 //Take the
 int captureCalibPair(cv::VideoCapture &cap, string Folder, int calibCounter){
@@ -100,22 +103,16 @@ cv::Mat Frame; // create matrix for the camera feed
     {
         return(-1);
     }
-    //Mat FrameFlpd; cv::flip(Frame,FrameFlpd,1); // Note that Left/Right are reversed now
-    //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
-    // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
-    cv::Mat Right= Frame( Rect(0, 0, 640, 480)); //Take the right frame
-    cv::Mat Left=  Frame( Rect(640, 0, 640, 480)); //Take the right frame u
+    cv::Mat Right = Frame( Rect(0, 0, 640, 480)); //Take the right frame
+    cv::Mat Left = Frame( Rect(640, 0, 640, 480)); //Take the left frame
     string fnameR(Folder + "right" + to_string(calibCounter) + ".jpg");
-    string fnameL=(Folder + "left" +  to_string(calibCounter) + ".jpg");
+    string fnameL(Folder + "left" +  to_string(calibCounter) + ".jpg");
     cv::imwrite(fnameL, Left);
     cv::imwrite(fnameR, Right);
-    cout << "Saved " << calibCounter + 1 << " stereo pair" << Folder <<endl;
+    cout << "Saved " << calibCounter << " stereo pair" << Folder <<endl;
     cv::waitKey(100);
 
-    calibCounter++;
-
 }
-
 
 /*--------------------*/
 /*-- Vergence Code --*/
@@ -130,7 +127,8 @@ static  cv::Point target_pxl = mid_pxl;
 
 static cv::Rect target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64); // target is at the centre of the camera FOV
 
-static  cv::Mat Left, Right; // images
+static cv::Mat Left, Right;         // images
+static cv::Mat LeftCopy, RightCopy; // copies for overlays
 
 const std::string right_eye = "TEST";
 const std::string left_eye  = "Left_Eye";
@@ -186,15 +184,61 @@ int camera_loop(cv::VideoCapture *vid_cap)
     // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
     Left= FrameFlpd( cv::Rect(0, 0, 640, 480)); // using a rectangle
     Right=FrameFlpd( cv::Rect(640, 0, 640, 480)); // using a rectangle
+
     cv::Mat RightCopy;
     Right.copyTo(RightCopy);
 
-    /* Draw stuff onto img, then show images */
-    target = Rect(target_pxl.x-32, target_pxl.y-32, 64, 64);
-    cv::rectangle( RightCopy, target, cv::Scalar::all(255), 2, 8, 0 ); // draw white rect
-    if(_mouse_clk)cv::line(RightCopy, mid_pxl, target_pxl, cv::Scalar(0, 255, 0), 3); // draw line from center of screen to selected pixel location
+    cv::Mat LeftCopy;
+    Left.copyTo(LeftCopy);
 
-    imshow(left_eye, Left);imshow(right_eye, RightCopy);
+    /* Image processing and display when performing cross-correlation */
+    if (start_cross_correlation)
+    {
+
+        /* Generate correlation template from left camera */
+        OWL_left_eye  = Owl_matchTemplate(&LeftCopy, &OWLtempl, &OWL_left_eye);
+        OWL_right_eye = Owl_matchTemplate(&RightCopy, &OWLtempl, &OWL_right_eye);
+
+        /* Identify midpoints of correlated targets in either camera feed */
+        Point left_mid_target  = Point(OWL_left_eye.Match.x + 32, OWL_left_eye.Match.y + 32);
+        Point right_mid_target = Point(OWL_right_eye.Match.x + 32, OWL_right_eye.Match.y + 32);
+
+        // Left frame drawings
+        rectangle( LeftCopy, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        cv::line(LeftCopy, mid_pxl, left_mid_target, cv::Scalar(0, 255, 0), 3);
+
+        // right frame drawings
+        rectangle( RightCopy, OWL_right_eye.Match, Point( OWL_right_eye.Match.x + OWLtempl.cols , OWL_right_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        cv::line(RightCopy, mid_pxl, right_mid_target, cv::Scalar(0, 255, 0), 3);
+
+        // Correlation window drawings
+        rectangle( OWL_left_eye.Result, OWL_left_eye.Match, Point( OWL_left_eye.Match.x + OWLtempl.cols , OWL_left_eye.Match.y + OWLtempl.rows), Scalar::all(255), 2, 8, 0 );
+        imshow("Correl",OWL_left_eye.Result );
+
+
+        /* Show distance estimation in window */
+        std::ostringstream distance_txt;
+        distance_txt << distance_estimate << "mm";
+
+
+        target_pxl = cv::Point(OWL_right_eye.Match.x, OWL_right_eye.Match.y);
+
+        cv::putText( RightCopy,
+                     distance_txt.str(),
+                     cv::Point(target_pxl.x, target_pxl.y-5),
+                     cv::FONT_HERSHEY_COMPLEX_SMALL,
+                     1.0,
+                     cv::Scalar(255,255,0),
+                     2);
+
+
+
+        /* Update template on every camera-loop */
+//        OWLtempl= Right(target);
+//        imshow("templ",OWLtempl);
+    }
+
+    imshow(left_eye, LeftCopy);imshow(right_eye, RightCopy);
 
     /* Only set-up call-backs once the window is established */
     if(!camera_setup_done)
@@ -204,12 +248,13 @@ int camera_loop(cv::VideoCapture *vid_cap)
     }
 
 
-    cv::waitKey(10);
+    //cv::waitKey(10);
 
     return cv::waitKey(100); // this is a pause long enough to allow a stable photo to be taken.
 
 }
 
+#endif // OWLCV_H
 
 /*---- Moves all servos to the position corresponding to the latest PWM mark-period value ----*/
 //void update_servo_position(int ms_delay = 20)

@@ -223,7 +223,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
 
     // save intrinsic parameters
     //PFC Saves to local Repo folder
-    FileStorage fs("../../Data/intrinsics.xml", FileStorage::WRITE);
+    FileStorage fs("../../Data/intrinsics_owl8.xml", FileStorage::WRITE);
     if( fs.isOpened() )
     {
         fs << "M1" << cameraMatrix[0] << "D1" << distCoeffs[0] <<
@@ -241,7 +241,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                   imageSize, R, T, R1, R2, P1, P2, Q,
                   CALIB_ZERO_DISPARITY, 1, imageSize, &validRoi[0], &validRoi[1]);
     //PFC Saves to local Repo folder
-    fs.open("../../Data/extrinsics.xml", FileStorage::WRITE);
+    fs.open("../../Data/extrinsics_owl8.xml", FileStorage::WRITE);
     if( fs.isOpened() )
     {
         fs << "R" << R << "T" << T << "R1" << R1 << "R2" << R2 << "P1" << P1 << "P2" << P2 << "Q" << Q;

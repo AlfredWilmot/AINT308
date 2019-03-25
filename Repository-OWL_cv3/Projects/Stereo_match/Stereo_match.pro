@@ -7,7 +7,7 @@ CONFIG -= qt
 win32{
 INCLUDEPATH += C:\opencv343\build\include ### was c:/opencv343/release/install/include
 LIBS += -LC:\openCV343\build\x64\vc15\lib
-LIBS +=    -lopencv_world343d \
+LIBS +=    -lopencv_world343 \
     -lws2_32 \
 ##    -lopencv_ffmpeg343
 }
@@ -31,3 +31,6 @@ LIBS += -lopencv_core \
 
 SOURCES += \
     ../../Sources/Opencv_disparity/stereo_match.cpp
+
+HEADERS += \
+    ../../Sources/Opencv_disparity/owl-show-disparity.h

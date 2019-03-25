@@ -50,8 +50,8 @@ int main(int argc, char** argv)
 {
     std::string Left_filename = "";
     std::string Right_filename = "";
-    std::string intrinsic_filename = "../../Data/intrinsics.yml";
-    std::string extrinsic_filename = "../../Data/extrinsics.yml";
+    std::string intrinsic_filename = "../../Data/intrinsics_owl8.xml";
+    std::string extrinsic_filename = "../../Data/extrinsics_owl8.xml";
     std::string disparity_filename = "Disparity.jpg";
     std::string point_cloud_filename = "PointCloud";
 
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     Ptr<StereoBM> bm = StereoBM::create(16,9);
     Ptr<StereoSGBM> sgbm = StereoSGBM::create(0,16,3);
     cv::CommandLineParser parser(argc, argv,
-                                 "{@arg1||}{@arg2||}{help h||}{algorithm||}{max-disparity|256|}{blocksize|3|}{no-display||}{scale|1|}{i||}{e||}{o||}{p||}");
+                                 "{@arg1||}{@arg2||}{help h||}{algorithm||}{max-disparity|256|}{blocksize|1|}{no-display||}{scale|1|}{i||}{e||}{o||}{p||}");
     if(parser.has("help"))
     {
         print_help();

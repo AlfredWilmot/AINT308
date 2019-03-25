@@ -6,7 +6,7 @@ CONFIG -= qt
 win32{
 INCLUDEPATH += C:\opencv343\build\include ### was c:/opencv343/release/install/include
 LIBS += -LC:\openCV343\build\x64\vc15\lib
-LIBS +=    -lopencv_world343d \
+LIBS +=    -lopencv_world343 \
     -lws2_32 \
 ##    -lopencv_ffmpeg343
 }
@@ -34,4 +34,17 @@ SOURCES += \
 HEADERS += \
     ../../Sources/Owl-1_r1/owl-comms.h \
     ../../Sources/Owl-1_r1/owl-pwm.h \
-    ../../Sources/Owl-1_r1/owl-cv.h
+    ../../Sources/Owl-1_r1/owl-cv.h \
+    ../../Sources/Owl-1_r1/owl-stereo-calib.h \
+    ../../Sources/Owl-1_r1/owl-disparity.h \
+    ../../Sources/Owl-1_r1/distance_estimation.h
+
+DISTFILES += \
+    ../../Data/stereo_calib_Test5.xml \
+    ../../Data/stereo_calib_Test1.xml \
+    ../../Data/stereo_calib_Test2.xml \
+    ../../Data/stereo_calib_Test3.xml \
+    ../../Data/stereo_calib_Test4.xml \
+    ../../Data/stereo_calib_Test6.xml \
+    ../../Data/stereo_calib_Test7.xml \
+    ../../Data/stereo_calib_Test8.xml
