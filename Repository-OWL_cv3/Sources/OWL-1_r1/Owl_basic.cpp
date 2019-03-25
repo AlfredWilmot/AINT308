@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test7.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test8.xml|}");
                     if (parser.has("help"))
                         return print_help();
                     showRectified = !parser.has("nr");

@@ -27,6 +27,29 @@
 using namespace cv;
 using namespace std;
 
+/* Mouse Click */
+
+static bool disparityMouseClick = false;
+
+//void mouseEvent(int evt, int x, int y, int, void*)
+//{
+
+//    if (evt == CV_EVENT_LBUTTONDOWN)
+//    {
+//        _mouse_clk = true;      //set flag.
+
+//        /* Update the new mouse-selected seed pixel coordinates */
+//        target_pxl = cv::Point(x,y);
+
+//        std::cout << "Pixel (x,y): " << target_pxl.x << ", " << target_pxl.y << "\n";
+
+//    }
+//}
+
+/* ////////////////////////
+ *        Phils code
+ * ///////////////////////*/
+
 static void print_help_disparity()
 {
     printf("\nDemo stereo matching converting L and R images into disparity and point clouds\n");
@@ -239,13 +262,13 @@ int showDisparity(int argc, char** argv)
             //waitKey(30); // display the images
 
 
-//            // This section flips the image again
-//            Mat Leftr, Rightr;
-//            remap(Left, Leftr, map11, map12, INTER_LINEAR);
-//            remap(Right, Rightr, map21, map22, INTER_LINEAR);
+            // This section flips the image again
+            Mat Leftr, Rightr;
+            remap(Left, Leftr, map11, map12, INTER_LINEAR);
+            remap(Right, Rightr, map21, map22, INTER_LINEAR);
 
-//            Left = Leftr;
-//            Right = Rightr;
+            Left = Leftr;
+            Right = Rightr;
 
 
             numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
