@@ -65,19 +65,19 @@ int main(int argc, char *argv[])
     int PORT=12345;
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
-    /* Center servo values (according to owl #8 servo calibration) */
-    Rx   = Owl_8_RxC - 48;
-    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
-    Ry   = Owl_8_RyC;
-    Ly   = Owl_8_LyC;
-    Neck = Owl_8_NeckC;
+//    /* Center servo values (according to owl #8 servo calibration) */
+//    Rx   = Owl_8_RxC - 48;
+//    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
+//    Ry   = Owl_8_RyC;
+//    Ly   = Owl_8_LyC;
+//    Neck = Owl_8_NeckC;
 
-//    /* Toe in servo values (according to owl #1 servo calibration) */
-//    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
-//    Lx   = Owl_1_LxC + 18*3;
-//    Ry   = Owl_1_RyC;
-//    Ly   = Owl_1_LyC;
-//    Neck = Owl_1_NeckC;
+    /* Toe in servo values (according to owl #1 servo calibration) */
+    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+    Lx   = Owl_1_LxC + 18*3;
+    Ry   = Owl_1_RyC;
+    Ly   = Owl_1_LyC;
+    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
     bool canCalib = false;
@@ -122,12 +122,6 @@ int main(int argc, char *argv[])
             case 'd'://right
                 Rx=Rx+step;Lx=Lx+step;
                 break;
-            case 'c':
-                OWLtempl= Right(target);
-                imshow("templ",OWLtempl);
-                waitKey(1);
-                inLOOP=false; // quit loop and start tracking target
-                break;
             case 'j': // take image for calibration - max = 20
 
                 if(calibCounter < 20){
@@ -168,7 +162,7 @@ int main(int argc, char *argv[])
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test8.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test5.xml|}");
                     if (parser.has("help"))
                         return print_help();
                     showRectified = !parser.has("nr");
@@ -204,6 +198,7 @@ int main(int argc, char *argv[])
                 destroyAllWindows();
 
                 break;
+
             case 27: //ESC
                 inLOOP = false;
                 break;
@@ -233,7 +228,25 @@ int main(int argc, char *argv[])
                 //update_distance_estimate();
                 update_distance_estimate_PFC();
 
-                //cout << "target distance: " << distance_estimate << "\n";
+                /* Generate csv file and append latest distance estimate to it */
+                if(key == 'c')
+                {
+                    std::ofstream myfile;
+//                      if(is_first_distance_sample)
+//                      {
+//                        myfile.open ("../../Data/distance_tests/vergence_distance_measurements_01.csv", std::fstream::app);
+//                      }
+//                      else
+//                      {
+                          myfile.open ("../../Data/distance_tests/vergence_distance_measurements_01.csv", std::fstream::app);   //make csv file if does not already exist, otherwise append.
+                          myfile << distance_estimate << "," << absolute_distance_mm << "\n";
+                          absolute_distance_mm += dist_step_mm;
+                          myfile.close();
+//                      }
+
+
+                }
+
             }
 
             /* Update servo position */
@@ -268,22 +281,27 @@ void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlC
     double tmp = 0;
 
     double xScaleV = *range_x/static_cast<double>(640);                    //PWM range /pixel range
-    double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/xScaleV ;        // compare to centre of image
-    tmp = *axis_x;
-    *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
-
     double yScaleV = *range_y/static_cast<double>(480);                    //PWM range /pixel range
 
+    double Xoff = 0;
     double Yoff = 0;
 
     if(is_right_eye)
     {
-        Yoff = 240-(owl_eye->Match.y - OWLtempl.rows/2)/yScaleV ;  // compare to centre of image
+        double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/4)/xScaleV ;       // compare to centre of image
+        tmp = *axis_x;
+        *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
+
+        Yoff = 240-(owl_eye->Match.y)/yScaleV ;  // compare to centre of image
         tmp = *axis_y;
         *axis_y=static_cast<int>(tmp + Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]
     }
     else
     {
+        Xoff= 320-(owl_eye->Match.x)/xScaleV ;//Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/2)/xScaleV ;        // compare to centre of image
+        tmp = *axis_x;
+        *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
+
         Yoff = 240+(owl_eye->Match.y + OWLtempl.rows/2)/yScaleV ;
         tmp = *axis_y;
         *axis_y=static_cast<int>(tmp - Yoff*KPy);// roughly 300 servo offset = 320 [pixel offset]

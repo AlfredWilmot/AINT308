@@ -17,7 +17,7 @@ CXXFLAGS      = -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStri
 INCPATH       = -I..\Owl-1_r1 -I. -IC:\opencv343\build\include -IC:\Qt5\5.12.0\msvc2017_64\mkspecs\win32-msvc 
 LINKER        = link
 LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE "/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'"
-LIBS          = /LIBPATH:C:\openCV343\build\x64\vc15\lib C:\openCV343\build\x64\vc15\lib\opencv_world343d.lib ws2_32.lib   
+LIBS          = /LIBPATH:C:\openCV343\build\x64\vc15\lib C:\openCV343\build\x64\vc15\lib\opencv_world343.lib ws2_32.lib   
 QMAKE         = C:\Qt5\5.12.0\msvc2017_64\bin\qmake.exe
 IDC           = idc
 IDL           = midl /NOLOGO
@@ -48,11 +48,19 @@ OBJECTS_DIR   = release
 SOURCES       = ..\..\Sources\OWL-1_r1\Owl_basic.cpp 
 OBJECTS       = release\Owl_basic.obj
 
-DIST          = ../../Data/stereo_calib.xml ../../Sources/Owl-1_r1/owl-comms.h \
+DIST          = ../../Data/stereo_calib_Test5.xml \
+		../../Data/stereo_calib_Test1.xml \
+		../../Data/stereo_calib_Test2.xml \
+		../../Data/stereo_calib_Test3.xml \
+		../../Data/stereo_calib_Test4.xml \
+		../../Data/stereo_calib_Test6.xml \
+		../../Data/stereo_calib_Test7.xml \
+		../../Data/stereo_calib_Test8.xml ../../Sources/Owl-1_r1/owl-comms.h \
 		../../Sources/Owl-1_r1/owl-pwm.h \
 		../../Sources/Owl-1_r1/owl-cv.h \
 		../../Sources/Owl-1_r1/owl-stereo-calib.h \
-		../../Sources/Owl-1_r1/owl-disparity.h ..\..\Sources\OWL-1_r1\Owl_basic.cpp
+		../../Sources/Owl-1_r1/owl-disparity.h \
+		../../Sources/Owl-1_r1/distance_estimation.h ..\..\Sources\OWL-1_r1\Owl_basic.cpp
 QMAKE_TARGET  = Owl-1
 DESTDIR        = release\ #avoid trailing-slash linebreak
 TARGET         = Owl-1.exe
@@ -192,6 +200,7 @@ release\Owl_basic.obj: ..\..\Sources\OWL-1_r1\Owl_basic.cpp ..\..\Sources\OWL-1_
 		C:\opencv343\build\include\opencv2\videoio\videoio_c.h \
 		C:\opencv343\build\include\opencv2\imgproc\imgproc.hpp \
 		C:\opencv343\build\include\opencv2\imgproc.hpp \
+		..\..\Sources\OWL-1_r1\distance_estimation.h \
 		..\..\Sources\OWL-1_r1\owl-stereo-calib.h \
 		C:\opencv343\build\include\opencv2\calib3d.hpp \
 		C:\opencv343\build\include\opencv2\features2d.hpp \

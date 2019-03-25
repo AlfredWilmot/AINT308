@@ -30,27 +30,27 @@ using namespace std;
 /* Mouse Click */
 static bool disparityMouseClick = false;
 
-const   cv::Point mid_pxl    = cv::Point(320, 240);
-static Point targetPos = mid_pxl;
+//const   cv::Point mid_pxl    = cv::Point(320, 240);
+//static Point targetPos = mid_pxl;
 
-void mouseEvent(int evt, int x, int y, int, void*)
-{
+//void mouseEvent(int evt, int x, int y, int, void*)
+//{
 
-    if (evt == CV_EVENT_LBUTTONDOWN)
-    {
-        disparityMouseClick = true;      //set flag.
+//    if (evt == CV_EVENT_LBUTTONDOWN)
+//    {
+//        disparityMouseClick = true;      //set flag.
 
-        /* Update the new mouse-selected seed pixel coordinates */
-        targetPos = cv::Point(x,y);
+//        /* Update the new mouse-selected seed pixel coordinates */
+//        targetPos = cv::Point(x,y);
 
-        // store pixel value at target pos
-        //write into csv file
-        //add counter for row column
+//        // store pixel value at target pos
+//        //write into csv file
+//        //add counter for row column
 
-        std::cout << "Pixel (x,y): " << targetPos.x << ", " << target_pxl.y << "\n";
+//        std::cout << "Pixel (x,y): " << targetPos.x << ", " << target_pxl.y << "\n";
 
-    }
-}
+//    }
+//}
 
 /* ////////////////////////
  *        Phils code
