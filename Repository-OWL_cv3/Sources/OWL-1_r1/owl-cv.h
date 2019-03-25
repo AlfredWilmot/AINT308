@@ -231,7 +231,7 @@ int camera_loop(cv::VideoCapture *vid_cap)
                      cv::Scalar(255,255,0),
                      2);
 
-
+//        cv::circle(RightCopy,target_pxl,5, cv::Scalar(0,0,255),1);
 
         /* Update template on every camera-loop */
 //        OWLtempl= Right(target);
