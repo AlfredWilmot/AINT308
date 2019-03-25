@@ -27,9 +27,16 @@
 using namespace cv;
 using namespace std;
 
-/* Mouse Click */
+/* Mouse Click setup for storing value in disparity map */
 static bool disparityMouseClick = false;
+static bool firstClick = true;
 
+<<<<<<< HEAD
+const   cv::Point midPixel    = cv::Point(320, 240);
+static Point targetPos = midPixel;
+
+void disparityMouseEvent(int evt, int x, int y, int, void*);
+=======
 //const   cv::Point mid_pxl    = cv::Point(320, 240);
 //static Point targetPos = mid_pxl;
 
@@ -51,6 +58,7 @@ static bool disparityMouseClick = false;
 
 //    }
 //}
+>>>>>>> aa8271eb00fe96652cbaf8e8b13e493285df7a0d
 
 /* ////////////////////////
  *        Phils code
@@ -336,6 +344,7 @@ int showDisparity(int argc, char** argv)
                 //namedWindow("right", 1);
                 imshow("right", Right);
                 //namedWindow("disparity", 0);
+
                 imshow("disparity", disp8);
                 //printf("press any key to continue...");
                 //fflush(stdout);
@@ -343,6 +352,34 @@ int showDisparity(int argc, char** argv)
                 if (key=='q') break;
                 //printf("\n");
             }
+
+            //create an interrupt for when the mouse is clicked on the disparity map
+            if(firstClick){
+            cv::setMouseCallback("disparity", disparityMouseEvent, 0);
+            firstClick = false; //only runs once
+            }
+
+            if (disparityMouseClick){ //calculate distance
+
+                uchar dispValue = disp.at<uchar>(targetPos.x, targetPos.y);
+
+                 //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
+                 printf("Disparity value at pixel: %d\n", dispValue);
+                 //cout << targetPos.x <<" " << targetPos.y << "\n";
+                 //disparityMouseClick = false; //print out once
+
+
+                 double dispDistance = (65 * 3.6) / dispValue;
+
+                 cout << "distance = " << dispDistance << "\n";
+
+
+                 /* Disparity = (B * f)/Z
+                  * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
+                  * all in mm
+                  */
+            }
+
         } // end video loop
 
         if(!disparity_filename.empty())
@@ -360,4 +397,25 @@ int showDisparity(int argc, char** argv)
     } // end got intrinsics IF
 
     return 0;
+}
+
+void disparityMouseEvent(int evt, int x, int y, int, void*)
+{
+
+    if (evt == CV_EVENT_LBUTTONDOWN)
+    {
+        disparityMouseClick = true;      //set flag.
+
+        /* Update the new mouse-selected seed pixel coordinates */
+        targetPos = cv::Point(x,y);
+
+        // store pixel value at target pos - use equation ffrom slides
+        // scale the cvalue
+        //use ushort
+        //write into csv file
+        //add counter for row column
+
+        std::cout << "Pixel (x,y): " << targetPos.x << ", " << targetPos.y << "\n";
+
+    }
 }
