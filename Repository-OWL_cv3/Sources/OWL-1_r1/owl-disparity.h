@@ -31,34 +31,10 @@ using namespace std;
 static bool disparityMouseClick = false;
 static bool firstClick = true;
 
-<<<<<<< HEAD
 const   cv::Point midPixel    = cv::Point(320, 240);
 static Point targetPos = midPixel;
 
 void disparityMouseEvent(int evt, int x, int y, int, void*);
-=======
-//const   cv::Point mid_pxl    = cv::Point(320, 240);
-//static Point targetPos = mid_pxl;
-
-//void mouseEvent(int evt, int x, int y, int, void*)
-//{
-
-//    if (evt == CV_EVENT_LBUTTONDOWN)
-//    {
-//        disparityMouseClick = true;      //set flag.
-
-//        /* Update the new mouse-selected seed pixel coordinates */
-//        targetPos = cv::Point(x,y);
-
-//        // store pixel value at target pos
-//        //write into csv file
-//        //add counter for row column
-
-//        std::cout << "Pixel (x,y): " << targetPos.x << ", " << target_pxl.y << "\n";
-
-//    }
-//}
->>>>>>> aa8271eb00fe96652cbaf8e8b13e493285df7a0d
 
 /* ////////////////////////
  *        Phils code
