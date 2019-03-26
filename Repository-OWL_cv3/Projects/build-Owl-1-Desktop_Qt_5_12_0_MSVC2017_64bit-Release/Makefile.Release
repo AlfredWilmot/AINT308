@@ -17,7 +17,7 @@ CXXFLAGS      = -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStri
 INCPATH       = -I..\Owl-1_r1 -I. -IC:\opencv343\build\include -IC:\Qt5\5.12.0\msvc2017_64\mkspecs\win32-msvc 
 LINKER        = link
 LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE "/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'"
-LIBS          = /LIBPATH:C:\openCV343\build\x64\vc15\lib C:\openCV343\build\x64\vc15\lib\opencv_world343d.lib ws2_32.lib   
+LIBS          = /LIBPATH:C:\openCV343\build\x64\vc15\lib C:\openCV343\build\x64\vc15\lib\opencv_world343.lib ws2_32.lib   
 QMAKE         = C:\Qt5\5.12.0\msvc2017_64\bin\qmake.exe
 IDC           = idc
 IDL           = midl /NOLOGO

@@ -27,7 +27,10 @@
 using namespace cv;
 using namespace std;
 
-/* Mouse Click setup for storing value in disparity map */
+
+/* ///////////////////////////////////////////
+ *        mouse click set up for disparity
+ * /////////////////////////////////////////*/
 static bool disparityMouseClick = false;
 static bool firstClick = true;
 
@@ -337,23 +340,20 @@ int showDisparity(int argc, char** argv)
 
             if (disparityMouseClick){ //calculate distance
 
-                uchar dispValue = disp.at<uchar>(targetPos.x, targetPos.y);
+                ushort dispValue = disp8.at<ushort>(targetPos.x, targetPos.y);
+                double dispDistance = (65 * 3.6) / dispValue;
 
                  //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
                  printf("Disparity value at pixel: %d\n", dispValue);
                  //cout << targetPos.x <<" " << targetPos.y << "\n";
                  //disparityMouseClick = false; //print out once
 
-
-                 double dispDistance = (65 * 3.6) / dispValue;
-
                  cout << "distance = " << dispDistance << "\n";
-
 
                  /* Disparity = (B * f)/Z
                   * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
                   * all in mm
-                  */
+                 */
             }
 
         } // end video loop

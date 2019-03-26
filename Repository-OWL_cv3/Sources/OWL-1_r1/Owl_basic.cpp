@@ -66,18 +66,18 @@ int main(int argc, char *argv[])
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
 //    /* Center servo values (according to owl #8 servo calibration) */
-//    Rx   = Owl_8_RxC - 48;
-//    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
-//    Ry   = Owl_8_RyC;
-//    Ly   = Owl_8_LyC;
-//    Neck = Owl_8_NeckC;
+    Rx   = Owl_8_RxC - 48;
+    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
+    Ry   = Owl_8_RyC;
+    Ly   = Owl_8_LyC;
+    Neck = Owl_8_NeckC;
 
     /* Toe in servo values (according to owl #1 servo calibration) */
-    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
-    Lx   = Owl_1_LxC + 18*3;
-    Ry   = Owl_1_RyC;
-    Ly   = Owl_1_LyC;
-    Neck = Owl_1_NeckC;
+//    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+//    Lx   = Owl_1_LxC + 18*3;
+//    Ry   = Owl_1_RyC;
+//    Ly   = Owl_1_LyC;
+//    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
     bool canCalib = false;
@@ -158,11 +158,14 @@ int main(int argc, char *argv[])
                 destroyAllWindows(); //removes irrelevant windows
                 if (canCalib)
                 {
+
                     Size boardSize; //store board size parameters
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test5.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test8.xml|}");
+//                  cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test5.xml|}");
+
                     if (parser.has("help"))
                         return print_help();
                     showRectified = !parser.has("nr");
@@ -198,7 +201,6 @@ int main(int argc, char *argv[])
                 destroyAllWindows();
 
                 break;
-
             case 27: //ESC
                 inLOOP = false;
                 break;
