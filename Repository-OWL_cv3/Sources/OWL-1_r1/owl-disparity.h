@@ -40,7 +40,7 @@ static Point targetPos = midPixel;
 void disparityMouseEvent(int evt, int x, int y, int, void*);
 
 /* ////////////////////////
- *        Phils code
+ *        Phils code below
  * ///////////////////////*/
 
 static void print_help_disparity()
@@ -246,7 +246,7 @@ int showDisparity(int argc, char** argv)
                 cout  << "Could not open the input video: " << source << endl;
                 //         break;
             }
-            Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 0); // Note that Left/Right are reversed now
+            Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 1); // Note that Left/Right are reversed now
             //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
             // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
             Left = FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
@@ -255,13 +255,13 @@ int showDisparity(int argc, char** argv)
             //waitKey(30); // display the images
 
 
-            // This section flips the image again
-            Mat Leftr, Rightr;
-            remap(Left, Leftr, map11, map12, INTER_LINEAR);
-            remap(Right, Rightr, map21, map22, INTER_LINEAR);
+//            // This section flips the image again
+//            Mat Leftr, Rightr;
+//            remap(Left, Leftr, map11, map12, INTER_LINEAR);
+//            remap(Right, Rightr, map21, map22, INTER_LINEAR);
 
-            Left = Leftr;
-            Right = Rightr;
+//            Left = Leftr;
+//            Right = Rightr;
 
 
             numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
@@ -331,7 +331,7 @@ int showDisparity(int argc, char** argv)
                 //printf("\n");
             }
 
-            //interrupt for mouseclick
+            // Set interrupt for mouseclick
             if(firstClick){
             cv::setMouseCallback("disparity", disparityMouseEvent, 0);
             firstClick = false; //Flag so it only sets up once
@@ -339,20 +339,18 @@ int showDisparity(int argc, char** argv)
 
             if (disparityMouseClick){ //calculate distance
 
-                ushort dispValue = disp.at<ushort>(targetPos.x, targetPos.y);
-
+                ushort dispValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
 
                 /* Disparity = (B * f)/Z
                  * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
                  * all in mm */
-                double dispDistance = ((65 * 3.6) / dispValue)*1000;
+                //double dispDistance = ((65 * 3.6) / dispValue)*10000;
+                //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
+                printf("Disparity value at pixel: %d\n", dispValue);
+                //cout << "distance = " << dispDistance << "\n";
 
-                 //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
-                 printf("Disparity value at pixel: %d\n", dispValue);
-                 //cout << targetPos.x <<" " << targetPos.y << "\n";
-                 //disparityMouseClick = false; //print out once
+                disparityMouseClick = false; // reset mouse click
 
-                 cout << "distance = " << dispDistance << "\n";
 
             }
         } // end video loop
@@ -373,19 +371,19 @@ int showDisparity(int argc, char** argv)
     return 0;
 }
 
+
+// store pixel value at target pos - use equation ffrom slides
+// scale the cvalue
+//use ushort
+//write into csv file
+//add counter for row column
 void disparityMouseEvent(int evt, int x, int y, int, void*)
 {
 
-    if (evt == EVENT_MOUSEMOVE) //CV_EVENT_LBUTTONDOWN)
+    if (evt == CV_EVENT_LBUTTONDOWN) // EVENT_MOUSEMOVE)
     {
-        // store pixel value at target pos - use equation ffrom slides
-        // scale the cvalue
-        //use ushort
-        //write into csv file
-        //add counter for row column
 
-        disparityMouseClick = true;      //set flag.
-
+        disparityMouseClick = true;      //set flag to indicate mouse click
         /* Update the new mouse-selected seed pixel coordinates */
         targetPos = cv::Point(x,y);
         std::cout << "Pixel (x,y): " << targetPos.x << ", " << targetPos.y << "\n";
