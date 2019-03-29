@@ -21,6 +21,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/core/utility.hpp"
+#include "distance_estimation.h"
 
 #include <stdio.h>
 
@@ -37,7 +38,11 @@ static bool firstClick = true;
 const   cv::Point midPixel    = cv::Point(320, 240);
 static Point targetPos = midPixel;
 
+//init variable for distance estimation
+static double dispDistance = 0; //mm
+
 void disparityMouseEvent(int evt, int x, int y, int, void*);
+double disparityDistanceEst(ushort dispValue, Mat disp);
 
 /* ////////////////////////
  *        Phils code below
@@ -337,17 +342,19 @@ int showDisparity(int argc, char** argv)
             firstClick = false; //Flag so it only sets up once
             }
 
-            if (disparityMouseClick){ //calculate distance
+            if (disparityMouseClick){ //Store pixel disparity value into csv and calculate distance
 
                 ushort dispValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
-
-                /* Disparity = (B * f)/Z
-                 * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
-                 * all in mm */
-                //double dispDistance = ((65 * 3.6) / dispValue)*10000;
-                //std::cout << "Disparity value at pixel: " <<  disp.at<uchar>(targetPos.x, targetPos.y) << "\n" ;
                 printf("Disparity value at pixel: %d\n", dispValue);
-                //cout << "distance = " << dispDistance << "\n";
+
+                disparityDistanceEst(dispValue, disp); //calculate distance
+
+                //Write to file
+                std::ofstream disparityFile;
+                disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements_01.csv", std::fstream::app); //create file or append if not available
+                disparityFile << dispValue << "," << absolute_distance_mm << "\n";
+                absolute_distance_mm += dist_step_mm;
+                disparityFile.close();
 
                 disparityMouseClick = false; // reset mouse click
 
@@ -389,4 +396,18 @@ void disparityMouseEvent(int evt, int x, int y, int, void*)
         std::cout << "Pixel (x,y): " << targetPos.x << ", " << targetPos.y << "\n";
 
     }
+}
+
+double disparityDistanceEst(ushort dispValue, Mat disp){
+
+    /* Disparity = (B * f)/Z
+     * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
+     * all in mm */
+
+    double dispDistance = ((65 * 3.6) / dispValue)*10000;
+
+    cout << "distance = " << dispDistance << "\n";
+
+    return dispDistance;
+
 }
