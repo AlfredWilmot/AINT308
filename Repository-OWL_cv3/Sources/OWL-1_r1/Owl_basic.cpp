@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
                  * - Change .xml which calibration set to use in parser Test'N'
                  /*/
 
-                // Currently using Mark calibrations set (test 1)
+                // Currently using Mark calibrations set (test 8)
 
                 destroyAllWindows(); //removes irrelevant windows
                 if (canCalib)
