@@ -42,7 +42,7 @@ static Point targetPos = midPixel;
 static double dispDistance = 0; //mm
 
 void disparityMouseEvent(int evt, int x, int y, int, void*);
-double disparityDistanceEst(ushort dispValue, Mat disp);
+ushort disparityDistanceEst(ushort dispValue);
 
 /* ////////////////////////
  *        Phils code below
@@ -346,7 +346,7 @@ int showDisparity(int argc, char** argv)
                 ushort dispValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
                 printf("Disparity value at pixel: %d\n", dispValue);
 
-                disparityDistanceEst(dispValue, disp); //calculate distance
+                disparityDistanceEst(dispValue); //calculate distance
 
                 //Write to file
                 std::ofstream disparityFile;
@@ -397,13 +397,16 @@ void disparityMouseEvent(int evt, int x, int y, int, void*)
     }
 }
 
-double disparityDistanceEst(ushort dispValue, Mat disp){
+ushort disparityDistanceEst(ushort dispValue){
 
     /* Disparity = (B * f)/Z
      * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
      * all in mm */
 
-    double dispDistance = ((65 * 3.6) / dispValue)*10000;
+    ushort dispDistance = ((67 * 3.6) / dispValue)*10000;
+    //ushort dispDistance = (-2*pow(10.0,-8.0))*pow(dispValue, 4.0) + (5*pow(10.0,-5.0))*pow(dispValue, 2.0) + (2.651 * dispValue) - 3471.1;
+
+    //ushort dispDistance = (6*pow(10.0,-11.0))*pow(dispValue, 4.0) - (3*pow(10.0,-7.0))*pow(dispValue, 2.0) + (0.0006 * pow(dispValue, 2.0)) - 239.71;
 
     cout << "distance = " << dispDistance << "\n";
 
