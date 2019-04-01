@@ -76,8 +76,8 @@ int showDisparity(int argc, char** argv)
 {
     std::string Left_filename = "";
     std::string Right_filename = "";
-    std::string intrinsic_filename = "../../Data/intrinsics_owl8.xml";
-    std::string extrinsic_filename = "../../Data/extrinsics_owl8.xml";
+    std::string intrinsic_filename = "../../Data/intrinsics.xml";
+    std::string extrinsic_filename = "../../Data/extrinsics.xml";
     std::string disparity_filename = "Disparity.jpg";
     std::string point_cloud_filename = "PointCloud";
 
@@ -251,7 +251,7 @@ int showDisparity(int argc, char** argv)
                 cout  << "Could not open the input video: " << source << endl;
                 //         break;
             }
-            Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 1); // Note that Left/Right are reversed now
+            Mat FrameFlpd; cv::flip(Frame,FrameFlpd, 0); // Note that Left/Right are reversed now
             //Mat Gray; cv::cvtColor(Frame, Gray, cv::COLOR_BGR2GRAY);
             // Split into LEFT and RIGHT images from the stereo pair sent as one MJPEG iamge
             Left = FrameFlpd( Rect(0, 0, 640, 480)); // using a rectangle
@@ -260,13 +260,12 @@ int showDisparity(int argc, char** argv)
             //waitKey(30); // display the images
 
 
-//            // This section flips the image again
-//            Mat Leftr, Rightr;
-//            remap(Left, Leftr, map11, map12, INTER_LINEAR);
-//            remap(Right, Rightr, map21, map22, INTER_LINEAR);
+            Mat Leftr, Rightr;
+            remap(Left, Leftr, map11, map12, INTER_LINEAR);
+            remap(Right, Rightr, map21, map22, INTER_LINEAR);
 
-//            Left = Leftr;
-//            Right = Rightr;
+            Left = Leftr;
+            Right = Rightr;
 
 
             numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
