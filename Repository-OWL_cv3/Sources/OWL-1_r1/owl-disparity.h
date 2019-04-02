@@ -42,7 +42,7 @@ static Point targetPos = midPixel;
 static double dispDistance = 0; //mm
 
 void disparityMouseEvent(int evt, int x, int y, int, void*);
-ushort disparityDistanceEst(ushort dispValue);
+double disparityDistanceEst(double pixelValue);
 
 /* ////////////////////////
  *        Phils code below
@@ -343,15 +343,15 @@ int showDisparity(int argc, char** argv)
 
             if (disparityMouseClick){ //Store pixel disparity value into csv and calculate distance
 
-                ushort dispValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
-                printf("Disparity value at pixel: %d\n", dispValue);
+                double pixelValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
+                printf("Disparity value at pixel: %f\n", pixelValue);
 
-                disparityDistanceEst(dispValue); //calculate distance
+                disparityDistanceEst(pixelValue); //calculate distance
 
                 //Write to file
                 std::ofstream disparityFile;
                 disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements_01.csv", std::fstream::app); //create file or append if not available
-                disparityFile << dispValue << "," << absolute_distance_mm << "\n";
+                disparityFile << pixelValue << "," << absolute_distance_mm << "\n";
                 absolute_distance_mm += dist_step_mm;
                 disparityFile.close();
 
@@ -397,16 +397,19 @@ void disparityMouseEvent(int evt, int x, int y, int, void*)
     }
 }
 
-ushort disparityDistanceEst(ushort dispValue){
+double disparityDistanceEst(double pixelValue){
 
-    /* Disparity = (B * f)/Z
-     * where B is IPD (65mm), f is Focal length(3.6mm), Z is distance
+    /* D = (B * f)/d * ps
+     * where B is IPD (65mm), f is Focal length(3.6mm), d is disparity
+     * ps is pixel size (1.4um)
      * all in mm */
+    //const int IPD = 67;
+//    const double  f = 3.6;
+//    const double pixelSize = 0.0014;
 
-    ushort dispDistance = ((67 * 3.6) / dispValue)*10000;
-    //ushort dispDistance = (-2*pow(10.0,-8.0))*pow(dispValue, 4.0) + (5*pow(10.0,-5.0))*pow(dispValue, 2.0) + (2.651 * dispValue) - 3471.1;
+//    ushort dispDistance = (IPD * f) / ((pixelValue/8.0f) * pixelSize);
 
-    //ushort dispDistance = (6*pow(10.0,-11.0))*pow(dispValue, 4.0) - (3*pow(10.0,-7.0))*pow(dispValue, 2.0) + (0.0006 * pow(dispValue, 2.0)) - 239.71;
+    double dispDistance = (6 * pow(10, -11) * pow(pixelValue, 4.0)) - (3 * pow(10, -7) * pow(pixelValue, 3.0)) + (0.0006 * pow(pixelValue, 2.0)) - (0.4335 * pixelValue) + 180.71;
 
     cout << "distance = " << dispDistance << "\n";
 
