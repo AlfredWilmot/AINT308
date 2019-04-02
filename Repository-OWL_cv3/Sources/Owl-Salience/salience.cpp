@@ -190,11 +190,35 @@ int main(int argc, char *argv[])
 
 
         // ======================================CALCULATE FEATURE MAPS ====================================
-        //============================================DoG low bandpass Map============================================
+
+        /*---- DoG low bandpass Map ----*/
         Mat DoGLow = DoGFilter(LeftGrey,3,51);
         Mat DoGLow8;
         normalize(DoGLow, DoGLow8, 0, 255, CV_MINMAX, CV_8U);
         imshow("DoG Low", DoGLow8);
+
+        /*---- Extract Hue and Saturation values ----*/
+        Mat HSV, Saturation, Hue, Saturation_AND_Hue;
+        std::vector<cv::Mat> hsv_channels;
+        cvtColor(Left, HSV, CV_BGR2HSV);
+        split(HSV, hsv_channels);
+        Hue = hsv_channels[2];
+        Saturation = hsv_channels[1];
+
+        bitwise_and(Saturation, Hue, Saturation_AND_Hue);
+
+        imshow("Saturation", hsv_channels[1]);
+        imshow("Value", hsv_channels[2]);
+        imshow("Saturation * Value", Saturation_AND_Hue);
+
+        /*---- Extract regions of color brightness above a threshold ----*/
+        Mat BGR_thresh;
+        double thresh = 127;
+        threshold(Left, BGR_thresh,thresh,255, THRESH_BINARY);
+        cvtColor(BGR_thresh,BGR_thresh, COLOR_BGR2GRAY);
+       // imshow("RGB thresholding", BGR_thresh);
+
+
 
         //=====================================Initialise Global Position====================================
         //cout<<"Globe Pos"<<endl;
@@ -209,16 +233,36 @@ int main(int argc, char *argv[])
         //cout<<"Salience"<<endl;
 
 
-        //Convert 8-bit Mat to 32bit floating point
+        /*---- Convert 8-bit Mat to 32bit floating point ----*/
+
+        //DoG
         DoGLow.convertTo(DoGLow, CV_32FC1);
         DoGLow*=DoGLowWeight;
+
+        //Hue
+        Hue.convertTo(Hue, CV_32FC1);
+        Hue*=ColourWeight;
+
+        //Saturation
+        Saturation.convertTo(Saturation, CV_32FC1);
+        Saturation*=ColourWeight;
+
+        //BGR brightness
+        BGR_thresh.convertTo(BGR_thresh, CV_32FC1);
+        BGR_thresh*=ColourWeight;
+
         familiarLocal.convertTo(familiarLocal, CV_32FC1);
 
         // Linear combination of feature maps to create a salience map
         Mat Salience=cv::Mat(Left.size(),CV_32FC1,0.0); // init map
 
         add(Salience,DoGLow,Salience);
+        //add(Salience,Hue, Salience);
+        //add(Salience,Saturation, Salience);
+        //add(Salience, BGR_thresh, Salience);
+
         add(Salience,fovea,Salience);
+
         Salience=Salience.mul(familiarLocal);
         normalize(Salience, Salience, 0, 255, CV_MINMAX, CV_32FC1);
 
@@ -233,7 +277,9 @@ int main(int argc, char *argv[])
 
         rectangle(Left,Point(maxLoc.x-32,maxLoc.y-32),Point(maxLoc.x+32,maxLoc.y+32),Scalar::all(255),2,8,0); //draw rectangle on most salient area
         // Move left eye based on salience, move right eye to be parallel with left eye
-        ServoRel(((Lx-LxC+RxC-Rx)/DEG2PWM)+xDifference*1,-((LyC-Ly+RyC-Ry)/DEG2PWM)+yDifference*1,xDifference*1,yDifference*1,(Lx-LxC)/100);
+
+        // DISABLE FOR DEBUG
+        //ServoRel(((Lx-LxC+RxC-Rx)/DEG2PWM)+xDifference*1,-((LyC-Ly+RyC-Ry)/DEG2PWM)+yDifference*1,xDifference*1,yDifference*1,(Lx-LxC)/100);
 
         // Update Familarity Map //
         // Familiar map to inhibit salient targets once observed (this is a global map)
