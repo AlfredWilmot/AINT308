@@ -50,7 +50,12 @@ OBJECTS       = debug\salience.obj
 
 DIST          =  ../../Sources/Owl-Salience/owl-comms.h \
 		../../Sources/Owl-Salience/owl-cv.h \
+<<<<<<< HEAD
 		../../Sources/Owl-Salience/owl-pwm.h ..\..\Sources\Owl-Salience\salience.cpp
+=======
+		../../Sources/Owl-Salience/owl-pwm.h \
+		../../Sources/Owl-Salience/user_made_code.h ..\..\Sources\Owl-Salience\salience.cpp
+>>>>>>> a192d5436bf176523c3a483858b5def3e0984231
 QMAKE_TARGET  = Owl-Salience
 DESTDIR        = debug\ #avoid trailing-slash linebreak
 TARGET         = Owl-Salience.exe
@@ -190,6 +195,10 @@ debug\salience.obj: ..\..\Sources\Owl-Salience\salience.cpp ..\..\Sources\Owl-Sa
 		C:\opencv343\build\include\opencv2\videoio\videoio_c.h \
 		C:\opencv343\build\include\opencv2\imgproc\imgproc.hpp \
 		C:\opencv343\build\include\opencv2\imgproc.hpp \
+<<<<<<< HEAD
+=======
+		..\..\Sources\Owl-Salience\user_made_code.h \
+>>>>>>> a192d5436bf176523c3a483858b5def3e0984231
 		C:\opencv343\build\include\opencv2\calib3d.hpp \
 		C:\opencv343\build\include\opencv2\features2d.hpp \
 		C:\opencv343\build\include\opencv2\flann\miniflann.hpp \

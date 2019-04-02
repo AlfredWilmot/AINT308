@@ -50,7 +50,8 @@ OBJECTS       = release\salience.obj
 
 DIST          =  ../../Sources/Owl-Salience/owl-comms.h \
 		../../Sources/Owl-Salience/owl-cv.h \
-		../../Sources/Owl-Salience/owl-pwm.h ..\..\Sources\Owl-Salience\salience.cpp
+		../../Sources/Owl-Salience/owl-pwm.h \
+		../../Sources/Owl-Salience/user_made_code.h ..\..\Sources\Owl-Salience\salience.cpp
 QMAKE_TARGET  = Owl-Salience
 DESTDIR        = release\ #avoid trailing-slash linebreak
 TARGET         = Owl-Salience.exe
@@ -197,6 +198,7 @@ release\salience.obj: ..\..\Sources\Owl-Salience\salience.cpp ..\..\Sources\Owl-
 		C:\opencv343\build\include\opencv2\videoio\videoio_c.h \
 		C:\opencv343\build\include\opencv2\imgproc\imgproc.hpp \
 		C:\opencv343\build\include\opencv2\imgproc.hpp \
+		..\..\Sources\Owl-Salience\user_made_code.h \
 		C:\opencv343\build\include\opencv2\calib3d.hpp \
 		C:\opencv343\build\include\opencv2\features2d.hpp \
 		C:\opencv343\build\include\opencv2\flann\miniflann.hpp \

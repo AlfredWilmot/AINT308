@@ -1,8 +1,6 @@
 #ifndef OWLCV_H
 #define OWLCV_H
 
-#endif // OWLCV_H
-
 /* Phil Culverhouse
  *
  * Vision Processing for OWL camera system
@@ -12,6 +10,9 @@
  * (c) Plymouth University, 2016
  */
 #include <iostream>
+#include <fstream>
+#include <math.h>
+#include <string>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -83,3 +84,5 @@ cv::Mat Frame;
     cout << "Just saved 10 stereo pairs" << Folder <<endl;
     return(0);
 }
+
+#endif // OWLCV_H

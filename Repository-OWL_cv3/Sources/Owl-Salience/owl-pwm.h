@@ -1,8 +1,6 @@
 #ifndef OWLPWM_HPP
 #define OWLPWM_HPP
 
-#endif // OWLPWM_HPP
-
 // Defines for servo limits
 // PFC Owl robot
 // (c) Plymouth University
@@ -45,3 +43,5 @@ static int RyRangeV=RyTv-RyBv;
 static int RxRangeV=RxRv-RxLv;
 static int LyRangeV=LyTv-LyBv; // reflected so negative
 static int LxRangeV=LxRv-LxLv;
+
+#endif // OWLPWM_HPP

@@ -34,4 +34,5 @@ SOURCES += \
 HEADERS += \
     ../../Sources/Owl-Salience/owl-comms.h \
     ../../Sources/Owl-Salience/owl-cv.h \
-    ../../Sources/Owl-Salience/owl-pwm.h
+    ../../Sources/Owl-Salience/owl-pwm.h \
+    ../../Sources/Owl-Salience/user_made_code.h

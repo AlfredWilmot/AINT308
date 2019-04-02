@@ -36,6 +36,8 @@
 #include "owl-comms.h"
 #include "owl-cv.h"
 
+#include "user_made_code.h"
+
 #include "opencv2/calib3d.hpp"
 
 
@@ -73,8 +75,6 @@ static SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 static ostringstream CMDstream; // string packet
 static string CMD;
 
-static int Ry,Rx,Ly,Lx,Neck; // calculate values for position
-
 //Default feature map weights
 static int ColourWeight    = 60 ; //Saturation and Brightness
 static int DoGHighWeight    = 60 ; //Groups of edges in a small area
@@ -111,9 +111,10 @@ int main(int argc, char *argv[])
     string source ="http://10.0.0.10:8080/stream/video.mjpeg"; // was argv[1];           // the source file name
 
     //Set center neck positions
-    Rx = RxC; Lx = LxC;
-    Ry = RyC; Ly = LyC;
-    Neck= NeckC;
+//    Rx = RxC; Lx = LxC;
+//    Ry = RyC; Ly = LyC;
+//    Neck= NeckC;
+    send_servos_home();
 
     //Variable declorations
     double minVal; double maxVal; Point minLoc; Point maxLoc;
@@ -185,31 +186,40 @@ int main(int argc, char *argv[])
         remap(Left, Left, map1L, map2L, INTER_LINEAR);  //Apply camera calibration
         Right=FrameFlpd( Rect(640, 0, 640, 480));       // using a rectangle
         remap(Right, Right, map1R, map2R, INTER_LINEAR);//Apply camera calibration
-        Mat LeftGrey;                                   //Make a grey copy of Left
-        cvtColor(Left, LeftGrey, COLOR_BGR2GRAY);
+
 
 
         // ======================================CALCULATE FEATURE MAPS ====================================
 
-        /*---- DoG low bandpass Map ----*/
+
+
+        /*-------- DoG low bandpass Map --------*/
+        Mat LeftGrey;
+        Mat LeftCpy = Left.clone();
+        cvtColor(Left, LeftGrey, COLOR_BGR2GRAY);
+
         Mat DoGLow = DoGFilter(LeftGrey,3,51);
         Mat DoGLow8;
         normalize(DoGLow, DoGLow8, 0, 255, CV_MINMAX, CV_8U);
-        imshow("DoG Low", DoGLow8);
+        //imshow("DoG Low", DoGLow8);
 
-        /*---- Extract Hue and Saturation values ----*/
-        Mat HSV, Saturation, Hue, Saturation_AND_Hue;
-        std::vector<cv::Mat> hsv_channels;
+        /*-------- Detect High-Saturation --------*/
+        Mat HSV, Hue, Saturation, Value, output;
+        vector<Mat> hsv_channels;
         cvtColor(Left, HSV, CV_BGR2HSV);
         split(HSV, hsv_channels);
-        Hue = hsv_channels[2];
+
+        Hue = hsv_channels[0];
         Saturation = hsv_channels[1];
+        Value = hsv_channels[2];
 
-        bitwise_and(Saturation, Hue, Saturation_AND_Hue);
-
+        imshow("Hue", hsv_channels[0]);
         imshow("Saturation", hsv_channels[1]);
         imshow("Value", hsv_channels[2]);
-        imshow("Saturation * Value", Saturation_AND_Hue);
+
+        bitwise_and(hsv_channels[1], hsv_channels[2], output);
+
+        imshow("Saturation * Value", output);
 
         /*---- Extract regions of color brightness above a threshold ----*/
         Mat BGR_thresh;
@@ -266,7 +276,7 @@ int main(int argc, char *argv[])
         Salience=Salience.mul(familiarLocal);
         normalize(Salience, Salience, 0, 255, CV_MINMAX, CV_32FC1);
 
-        //imshow("SalienceNew",Salience);
+        imshow("SalienceNew",Salience);
 
         //=====================================Find & Move to Most Salient Target=========================================
 
@@ -278,7 +288,8 @@ int main(int argc, char *argv[])
         rectangle(Left,Point(maxLoc.x-32,maxLoc.y-32),Point(maxLoc.x+32,maxLoc.y+32),Scalar::all(255),2,8,0); //draw rectangle on most salient area
         // Move left eye based on salience, move right eye to be parallel with left eye
 
-        // DISABLE FOR DEBUG
+
+        /* DISABLE FOR DEBUG */
         //ServoRel(((Lx-LxC+RxC-Rx)/DEG2PWM)+xDifference*1,-((LyC-Ly+RyC-Ry)/DEG2PWM)+yDifference*1,xDifference*1,yDifference*1,(Lx-LxC)/100);
 
         // Update Familarity Map //
@@ -298,7 +309,7 @@ int main(int argc, char *argv[])
 
         Mat familiarSmall;
         resize(familiar,familiarSmall,familiar.size()/4);
-        imshow("Familiar",familiarSmall);
+        //imshow("Familiar",familiarSmall);
         //imshow("Right",Right);
 
         //=================================Convert Saliency into Heat Map=====================================
@@ -325,13 +336,13 @@ int main(int argc, char *argv[])
             LeftCrop.copyTo(PanView(Rect(GlobalPos.x,GlobalPos.y,LeftCrop.cols,LeftCrop.rows)));
             Mat PanViewSmall;
             resize(PanView,PanViewSmall,PanView.size()/2);
-            imshow("PanView",PanViewSmall);
+            //imshow("PanView",PanViewSmall);
         }
 
         resize(Left,Left,Left.size()/2);
         imshow("Left",Left);
         resize(SalienceHSV,SalienceHSV,SalienceHSV.size()/2);
-        imshow("SalienceHSV",SalienceHSV);
+       // imshow("SalienceHSV",SalienceHSV);
 
         //=========================================Control Window for feature weights =============================================
         //cout<<"Control Window"<<endl;
@@ -390,6 +401,8 @@ string ServoAbs( double DEGRx,double DEGRy,double DEGLx,double DEGLy,double DEGN
         Neck=NeckR;
     }
 
+    servo_boundary_enforcer();
+
     CMDstream.str("");
     CMDstream.clear();
     CMDstream << Rx << " " << Ry << " " << Lx << " " << Ly << " " << Neck;
@@ -435,6 +448,8 @@ string ServoRel(double DEGRx,double DEGRy,double DEGLx,double DEGLy,double DEGNe
     }else if(Neck<NeckR){
         Neck=NeckR;
     }
+
+    servo_boundary_enforcer();
 
     CMDstream.str("");
     CMDstream.clear();
@@ -491,6 +506,8 @@ Mat DoGFilter(Mat src, int k, int g){
     return srcC;
 
 }
+
+
 
 
 
