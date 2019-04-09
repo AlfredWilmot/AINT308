@@ -66,18 +66,18 @@ int main(int argc, char *argv[])
     SOCKET u_sock = OwlCommsInit ( PORT, PiADDR);
 
 //    /* Center servo values (according to owl #8 servo calibration) */
-    Rx   = Owl_8_RxC - 48;
-    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
-    Ry   = Owl_8_RyC;
-    Ly   = Owl_8_LyC;
-    Neck = Owl_8_NeckC;
+//    Rx   = Owl_8_RxC - 48;
+//    Lx   = Owl_8_LxC + 54; // 18*3 servo step = ~6 degrees toe in
+//    Ry   = Owl_8_RyC;
+//    Ly   = Owl_8_LyC;
+//    Neck = Owl_8_NeckC;
 
     /* Toe in servo values (according to owl #1 servo calibration) */
-//    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
-//    Lx   = Owl_1_LxC + 18*3;
-//    Ry   = Owl_1_RyC;
-//    Ly   = Owl_1_LyC;
-//    Neck = Owl_1_NeckC;
+    Rx   = Owl_1_RxC - 18*3;    //toe-in of roughly 6 degrees.
+    Lx   = Owl_1_LxC + 18*3;
+    Ry   = Owl_1_RyC;
+    Ly   = Owl_1_LyC;
+    Neck = Owl_1_NeckC;
 
     bool inLOOP=true; // run through cursor control first, capture a target then exit loop
     bool canCalib = false;
@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
                     string imagelistfn; //store image list locations
                     bool showRectified; //chose to show rectified images
 
-                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test8.xml|}");
-//                  cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test5.xml|}");
+//                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test8.xml|}");
+                    cv::CommandLineParser parser(argc, argv, "{w|9|}{h|6|}{s|26.0|}{nr||}{help||}{@input|../../Data/stereo_calib_Test5.xml|}");
 
                     if (parser.has("help"))
                         return print_help();
@@ -224,8 +224,8 @@ int main(int argc, char *argv[])
                 /// P control for the servo
                 //** P control set track rate to 10% of destination PWMs to avoid ringing in eye servo
 
-                servo_P_controller(0.05, 0.05, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
-                servo_P_controller(0.05, 0.05, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
+                servo_P_controller(0.08, 0.08, &LxRangeV, &LyRangeV, &OWL_left_eye, &Lx, &Ly, false, Owl_1_LxMin, Owl_1_LxMax, Owl_1_LyMin, Owl_1_LxMax);
+                servo_P_controller(0.08, 0.08, &RxRangeV, &RyRangeV, &OWL_right_eye, &Rx, &Ry, true, Owl_1_RxMin, Owl_1_RxMax, Owl_1_RyMin, Owl_1_RxMax);
 
                 //update_distance_estimate();
                 update_distance_estimate_PFC();
@@ -242,8 +242,12 @@ int main(int argc, char *argv[])
 //                      {
                           myfile.open ("../../Data/distance_tests/vergence_distance_measurements_01.csv", std::fstream::app);   //make csv file if does not already exist, otherwise append.
                           myfile << distance_estimate << "," << absolute_distance_mm << "\n";
-                          absolute_distance_mm += dist_step_mm;
+
                           myfile.close();
+                          std::cout << "Estimated distance: " << distance_estimate << "\n";
+                          std::cout << "Actual distance: " << absolute_distance_mm << "\n";
+
+                          absolute_distance_mm += dist_step_mm;
 //                      }
 
 
@@ -290,7 +294,7 @@ void servo_P_controller(double KPx, double KPy, int *range_x, int *range_y, OwlC
 
     if(is_right_eye)
     {
-        double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/4)/xScaleV ;       // compare to centre of image
+        double Xoff= 320-(owl_eye->Match.x + OWLtempl.cols/5)/xScaleV ;       // compare to centre of image
         tmp = *axis_x;
         *axis_x=static_cast<int>(tmp-Xoff*KPx);                                 // roughly 300 servo offset = 320 [pixel offset]
 

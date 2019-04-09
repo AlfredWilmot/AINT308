@@ -6,7 +6,7 @@
 
 /* csv file generation varaibles */
 static float dist_step_mm = 10;
-static float absolute_distance_mm = 50; //update this with each image capture increment.
+static float absolute_distance_mm = 100; //update this with each image capture increment.
 static bool is_first_distance_sample = true;
 
 /*----------------------------------*/
