@@ -40,12 +40,16 @@ static Point targetPos = midPixel;
 
 //init variable for distance estimation
 static double dispDistance = 0; //mm
+static int StartDist_150mm = 150;
+static double pixelValue = 0;
 
 void disparityMouseEvent(int evt, int x, int y, int, void*);
 double disparityDistanceEst(double pixelValue);
 
-/* ////////////////////////
- *        Phils code below
+
+
+/* /////////////////////////
+ *        Phils code      *
  * ///////////////////////*/
 
 static void print_help_disparity()
@@ -313,7 +317,7 @@ int showDisparity(int argc, char** argv)
             else if( alg == STEREO_SGBM || alg == STEREO_HH || alg == STEREO_3WAY )
                 sgbm->compute(Left, Right, disp);
             t = getTickCount() - t;
-            printf("Time elapsed: %fms\n", t*1000/getTickFrequency());
+            //printf("Time elapsed: %fms\n", t*1000/getTickFrequency());
 
             //disp = dispp.colRange(numberOfDisparities, Leftp.cols);
             if( alg != STEREO_VAR )
@@ -322,10 +326,25 @@ int showDisparity(int argc, char** argv)
                 disp.convertTo(disp8, CV_8U);
             if( true )
             {
+                Mat LeftCopy = Left.clone();
+
+                /* Show distance estimation in window */
+                float tmp = dispDistance / 1000;
+                std::ostringstream distance_txt;
+                distance_txt << tmp << "mm";
+
+                cv::putText( LeftCopy,
+                             distance_txt.str(),
+                             cv::Point(0, 450),
+                             cv::FONT_HERSHEY_COMPLEX_SMALL,
+                             2.0,
+                             cv::Scalar(255,255,0),
+                                 2);
+
                 //namedWindow("left", 1);
-                imshow("left", Left);
+                imshow("leftCOPY", LeftCopy);
                 //namedWindow("right", 1);
-                imshow("right", Right);
+                //imshow("right", Right);
                 //namedWindow("disparity", 0);
                 imshow("disparity", disp8);
                 //printf("press any key to continue...");
@@ -343,22 +362,30 @@ int showDisparity(int argc, char** argv)
 
             if (disparityMouseClick){ //Store pixel disparity value into csv and calculate distance
 
-                double pixelValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
+                pixelValue = disp.at<ushort>(targetPos);//targetPos.x, targetPos.y); //Store disparity value
                 printf("Disparity value at pixel: %f\n", pixelValue);
 
                 disparityDistanceEst(pixelValue); //calculate distance
 
-                //Write to file
-                std::ofstream disparityFile;
-                disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements_01.csv", std::fstream::app); //create file or append if not available
-                disparityFile << pixelValue << "," << absolute_distance_mm << "\n";
-                absolute_distance_mm += dist_step_mm;
-                disparityFile.close();
-
                 disparityMouseClick = false; // reset mouse click
 
+            }
+
+            int key=waitKey(100);
+            if (key=='c') {
+
+            //Write to file
+            std::ofstream disparityFile;
+            disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements_01.csv", std::fstream::app); //create file or append if not available
+            disparityFile << disparityDistanceEst(pixelValue) << "," << StartDist_150mm << "\n";
+            cout << "\n"<< "Measurement " << disparityDistanceEst(pixelValue) << " at " << StartDist_150mm << " saved" << "\n";
+            StartDist_150mm += dist_step_mm;
+            disparityFile.close();
+
+            cout << "Next measurement = " << StartDist_150mm << "\n" << "\n";
 
             }
+
         } // end video loop
 
         if(!disparity_filename.empty())
@@ -400,19 +427,18 @@ void disparityMouseEvent(int evt, int x, int y, int, void*)
 double disparityDistanceEst(double pixelValue){
 
     /* D = (B * f)/d * ps
+     *
      * where B is IPD (65mm), f is Focal length(3.6mm), d is disparity
-     * ps is pixel size (1.4um)
+     * D for distance, ps is pixel size (1.4um)
      * all in mm */
-    //const int IPD = 67;
-//    const double  f = 3.6;
-//    const double pixelSize = 0.0014;
+    const int IPD = 67;
+    const double  f = 3.6;
 
-//    ushort dispDistance = (IPD * f) / ((pixelValue/8.0f) * pixelSize);
+    dispDistance = (IPD * f) / (1/pixelValue); //reciprocal
+    double dispDistancemm = dispDistance / 1000;
 
-    double dispDistance = (6 * pow(10, -11) * pow(pixelValue, 4.0)) - (3 * pow(10, -7) * pow(pixelValue, 3.0)) + (0.0006 * pow(pixelValue, 2.0)) - (0.4335 * pixelValue) + 180.71;
+    cout << "distance = " << dispDistancemm << "\n";
 
-    cout << "distance = " << dispDistance << "\n";
-
-    return dispDistance;
+    return dispDistancemm;
 
 }
