@@ -5,16 +5,18 @@
 
 /*
  *  stereo_match.cpp
- *  calibration
  *
  *  Created by Victor  Eruhimov on 1/18/10.
  *  Copyright 2010 Argus Corp. All rights reserved.
- *
+ *  
+ *  Edited by Mark Agbuya and Alfred Wilmot on 18/03/19
+ *  Using calibration parameters and the left and right camera to create a grayscale disparity map 
+ *  Added functions to estimate distance, write to csv file and display calculated distance on one of the frames
  */
 
 #include <iostream>
 #include <fstream>
-
+#include <stdio.h>
 
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/imgproc.hpp"
@@ -23,34 +25,27 @@
 #include "opencv2/core/utility.hpp"
 #include "distance_estimation.h"
 
-#include <stdio.h>
-
 using namespace cv;
 using namespace std;
 
+/*----------------------------------------------------------------------*/
+/*      VARIABLES AND FUNCTIONS FOR DISPARITY DISTANCE ESTIMATIONS      */
+/*----------------------------------------------------------------------*/
+static bool firstClick = true; // Used once to set up mouse event
+static bool disparityMouseClick = false; //True when mouse is clicked
 
-/* ///////////////////////////////////////////
- *        mouse click set up for disparity
- * /////////////////////////////////////////*/
-static bool disparityMouseClick = false;
-static bool firstClick = true;
+const  cv::Point midPixel = cv::Point(320, 240); // Set up center position on image
+static Point targetPos = midPixel; //Target position is defaulted to the middle
 
-const   cv::Point midPixel    = cv::Point(320, 240);
-static Point targetPos = midPixel;
+// Initialise variables for distance estimation in mm
+static double dispDistance = 0;
+static int StartDist_150mm = 150; // Starting measurement for experiments
+static double pixelValue = 0; // Store value for greyscale value in disparity map
 
-//init variable for distance estimation
-static double dispDistance = 0; //mm
-static int StartDist_150mm = 150;
-static double pixelValue = 0;
+//Functions
+void disparityMouseEvent(int evt, int x, int y, int, void*); // Interrupt for when mouse is clicked
+double disparityDistanceEst(double pixelValue); // Calculate distance estimate
 
-void disparityMouseEvent(int evt, int x, int y, int, void*);
-double disparityDistanceEst(double pixelValue);
-
-
-
-/* /////////////////////////
- *        Phils code      *
- * ///////////////////////*/
 
 static void print_help_disparity()
 {
@@ -100,8 +95,7 @@ int showDisparity(int argc, char** argv)
         print_help_disparity();
         return 0;
     }
-    //PFC Left_filename = parser.get<std::string>(0);
-    //PFC Right_filename = parser.get<std::string>(1);
+
     if (parser.has("algorithm"))
     {
         std::string _alg = parser.get<std::string>("algorithm");
@@ -150,12 +144,7 @@ int showDisparity(int argc, char** argv)
         printf("Command-line parameter error: The block size (--blocksize=<...>) must be a positive odd number\n");
         return -1;
     }
-/*PFC    if( Left_filename.empty() || Right_filename.empty() )
-    {
-        printf("Command-line parameter error: both left and right images must be specified\n");
-        return -1;
-    }
-    */
+
     if( (!intrinsic_filename.empty()) ^ (!extrinsic_filename.empty()) )
     {
         printf("Command-line parameter error: either both intrinsic and extrinsic parameters must be specified, or none of them (when the stereo pair is already rectified)\n");
@@ -169,31 +158,7 @@ int showDisparity(int argc, char** argv)
     }
 
     int color_mode = alg == STEREO_BM ? 0 : -1;
-/* PFC
-    Mat Left = imread(Left_filename, color_mode);
-    Mat Right = imread(Right_filename, color_mode);
 
-    if (Left.empty())
-    {
-        printf("Command-line parameter error: could not load the first input image file\n");
-        return -1;
-    }
-    if (Right.empty())
-    {
-        printf("Command-line parameter error: could not load the second input image file\n");
-        return -1;
-    }
-
-    if (scale != 1.f)
-    {
-        Mat temp1, temp2;
-        int method = scale < 1 ? INTER_AREA : INTER_CUBIC;
-        resize(Left, temp1, Size(), scale, scale, method);
-        Left = temp1;
-        resize(Right, temp2, Size(), scale, scale, method);
-        Right = temp2;
-    }
-*/
     Size img_size = {640,480} ; //***PFC BUG fixed was {480,640}; //PFC default to VGA res. always with video feed  was -->//Left.size();
 
     Rect roi1, roi2;
@@ -307,10 +272,6 @@ int showDisparity(int argc, char** argv)
             else if(alg==STEREO_3WAY)
                 sgbm->setMode(StereoSGBM::MODE_SGBM_3WAY);
 
-            //Mat Leftp, Rightp, dispp;
-            //copyMakeBorder(Left, Leftp, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
-            //copyMakeBorder(Right, Rightp, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
-
             int64 t = getTickCount();
             if( alg == STEREO_BM )
                 bm->compute(Left, Right, disp);
@@ -319,14 +280,13 @@ int showDisparity(int argc, char** argv)
             t = getTickCount() - t;
             //printf("Time elapsed: %fms\n", t*1000/getTickFrequency());
 
-            //disp = dispp.colRange(numberOfDisparities, Leftp.cols);
             if( alg != STEREO_VAR )
                 disp.convertTo(disp8, CV_8U, 255/(numberOfDisparities*16.));
             else
                 disp.convertTo(disp8, CV_8U);
             if( true )
             {
-                Mat LeftCopy = Left.clone();
+                Mat LeftCopy = Left.clone(); // Copy left eye image
 
                 /* Show distance estimation in window */
                 float tmp = dispDistance / 1000;
@@ -354,10 +314,9 @@ int showDisparity(int argc, char** argv)
                 //printf("\n");
             }
 
-            // Set interrupt for mouseclick
-            if(firstClick){
+            if(firstClick){ // Set interrupt only on first mouseclick
             cv::setMouseCallback("disparity", disparityMouseEvent, 0);
-            firstClick = false; //Flag so it only sets up once
+            firstClick = false; //Set up mouse event once
             }
 
             if (disparityMouseClick){ //Store pixel disparity value into csv and calculate distance
@@ -371,12 +330,13 @@ int showDisparity(int argc, char** argv)
 
             }
 
+            /* Storing pixel value and distance value in a csv file */ 
             int key=waitKey(100);
             if (key=='c') {
 
             //Write to file
             std::ofstream disparityFile;
-            disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements_01.csv", std::fstream::app); //create file or append if not available
+            disparityFile.open("../../Data/distance_tests/Disparity/disparity_distance_measurements.csv", std::fstream::app); //create file or append if not available
             disparityFile << disparityDistanceEst(pixelValue) << "," << StartDist_150mm << "\n";
             cout << "\n"<< "Measurement " << disparityDistanceEst(pixelValue) << " at " << StartDist_150mm << " saved" << "\n";
             StartDist_150mm += dist_step_mm;
@@ -404,12 +364,12 @@ int showDisparity(int argc, char** argv)
     return 0;
 }
 
-
-// store pixel value at target pos - use equation ffrom slides
-// scale the cvalue
-//use ushort
-//write into csv file
-//add counter for row column
+/*----------------------------------------------------------------------*/
+/*                      MOUSE CLICK FUNCTION                            */
+/* When a mouse click occurs, a flag is enabled to indicate the mouse   */
+/*  has been pressed and updates the target position variable to the    */
+/*                  x and y of the clicked pixel                        */
+/*----------------------------------------------------------------------*/
 void disparityMouseEvent(int evt, int x, int y, int, void*)
 {
 
@@ -423,21 +383,24 @@ void disparityMouseEvent(int evt, int x, int y, int, void*)
 
     }
 }
-
+/*----------------------------------------------------------------------*/
+/*                    ESTIMATE DISTANCE FUNCTION                        */
+/*   Uses pixel value from the disparity map and estimates distance     */
+/*    D = (B * f)/d                                                     */
+/*                                                                      */
+/*    D for distance                                                    */
+/*    B is IPD/space between the cameras (67mm)                         */
+/*    f is Focal length(3.6mm)                                          */
+/*    d is disparity                                                    */    
+/*----------------------------------------------------------------------*/
 double disparityDistanceEst(double pixelValue){
 
-    /* D = (B * f)/d * ps
-     *
-     * where B is IPD (65mm), f is Focal length(3.6mm), d is disparity
-     * D for distance, ps is pixel size (1.4um)
-     * all in mm */
     const int IPD = 67;
-    const double  f = 3.6;
+    const double f = 3.6;
 
-    dispDistance = (IPD * f) / (1/pixelValue); //reciprocal
-    double dispDistancemm = dispDistance / 1000;
-
-    cout << "distance = " << dispDistancemm << "\n";
+    dispDistance = (IPD * f) / (1/pixelValue); // Reciprocal as disparity value increases the further the object is
+    double dispDistancemm = dispDistance / 1000; //Convert to mm
+    cout << "distance = " << dispDistancemm << "\n"; // Print distance
 
     return dispDistancemm;
 

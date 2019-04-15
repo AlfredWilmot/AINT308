@@ -90,13 +90,12 @@ int OwlCalCapture(cv::VideoCapture &cap, string Folder){
 /*-- Camera calibration --*/
 /*------------------------*/
 
-//calibration vars
-static int calibCounter = 1;
+//Calibration variables
+static int calibCounter = 1; // Counter for the number of pairs taken
 const string testImages = "../../Data/mySavedImages/Test8/"; //location of the folder to store calibrating images
 
-//Take the
+// Capture curent frames for left and right camera
 int captureCalibPair(cv::VideoCapture &cap, string Folder, int calibCounter){
-
 cv::Mat Frame; // create matrix for the camera feed
 
     if (!cap.read(Frame))
@@ -114,9 +113,9 @@ cv::Mat Frame; // create matrix for the camera feed
 
 }
 
-/*--------------------*/
-/*-- Vergence Code --*/
-/*------------------*/
+/*---------------------*/
+/*--- Vergence Code ---*/
+/*---------------------*/
 
 /*---- Camera variables ----*/
 static bool _mouse_clk = false;
