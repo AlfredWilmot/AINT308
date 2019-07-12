@@ -1,5 +1,5 @@
 # AINT308
-Storing coursework code for AINT308 module: Computer Vision and Behavioral computing 
+### Coursework code for AINT308 module: Computer Vision and Behavioral computing 
 
 The Owl-vision report can be seen [here](https://github.com/AlfredWilmot/AINT308/blob/master/reports/AINT308__Animal_Visual_Perception.pdf), and the corresponding demo video can be seen [here](https://drive.google.com/open?id=1bPRg6IcTYw6Rc5ux_XPxhsEKIM8nZZzz). 
 
