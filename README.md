@@ -2,6 +2,7 @@
 
 Coursework involving the use of OpenCV and the [Plymouth Owl](https://www.plymouth.ac.uk/research/robotics-neural-systems/plymouth-owl).
 
+<img src="https://github.com/AlfredWilmot/AINT308/blob/master/Plymouth_OWL_robot.jpg" width="80%">
 
 ### Owl-vision
 
